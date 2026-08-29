@@ -1,7 +1,7 @@
 import type { CompactThinkingConfig } from "../feature/compact-thinking.ts";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 export type CompactStyleMode = "on" | "compact" | "off";
 
@@ -323,7 +323,13 @@ function loadConfig(): Config {
 	return { ...DEFAULT_CONFIG };
 }
 
+/** 首次写入前确保配置目录存在（全新机器上 ~/.pi/agent 可能尚未创建）。 */
+export function ensureConfigDir() {
+	mkdirSync(dirname(CONFIG_PATH), { recursive: true });
+}
+
 export function saveConfig() {
+	ensureConfigDir();
 	writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
 }
 

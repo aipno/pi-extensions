@@ -111,6 +111,9 @@ function runCommand(packageInfo, args, options, label) {
     const child = spawn(NPM, args, {
       cwd: packageInfo.dir,
       stdio: ["inherit", "pipe", "pipe"],
+      // .cmd shims (npm.cmd) cannot be spawned directly on Windows —
+      // CreateProcess returns EINVAL unless they go through a shell.
+      shell: process.platform === "win32",
       env: { ...process.env, CI: "1", FORCE_COLOR: "0" },
       windowsHide: true,
     });
