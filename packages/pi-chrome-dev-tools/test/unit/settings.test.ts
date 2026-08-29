@@ -86,7 +86,7 @@ test("browser-only user settings load without creating or requiring tool setting
 	assert.equal(loaded.effectiveBrowser.autoLaunchEnabled, false);
 	assert.equal(loaded.effectiveBrowser.endpointSource, "user");
 	assert.equal(loaded.effectiveBrowser.autoLaunchSource, "user");
-	assert.equal(loaded.effectiveBrowser.executablePath, "/usr/bin/example-chromium");
+	assert.equal(loaded.effectiveBrowser.executablePath, path.resolve("/usr/bin/example-chromium"));
 	assert.equal(loaded.effectiveBrowser.executablePathSource, "user");
 	assert.deepEqual(loaded.warnings, []);
 });

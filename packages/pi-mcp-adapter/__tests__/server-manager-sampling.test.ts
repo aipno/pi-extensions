@@ -440,6 +440,8 @@ describe("McpServerManager sampling", () => {
     const { McpServerManager } = await import("../server-manager.ts");
     process.env.MCP_TEST_CWD = "/tmp/pi-mcp-cwd";
     process.env.HOME = "/tmp/pi-mcp-home";
+    // os.homedir() reads $HOME on POSIX but USERPROFILE on Windows.
+    process.env.USERPROFILE = "/tmp/pi-mcp-home";
     mkdirSync("/tmp/pi-mcp-cwd/nested", { recursive: true });
     mkdirSync("/tmp/pi-mcp-home/nested", { recursive: true });
 
@@ -458,7 +460,9 @@ describe("McpServerManager sampling", () => {
     });
 
     expect(mocks.transports[0].options).toMatchObject({ cwd: "/tmp/pi-mcp-cwd/nested" });
-    expect(mocks.transports[1].options).toMatchObject({ cwd: "/tmp/pi-mcp-home/nested" });
+    // ~ is expanded with path.join(homedir(), …); match the platform's own
+    // separator instead of a hardcoded POSIX string.
+    expect(mocks.transports[1].options).toMatchObject({ cwd: join("/tmp/pi-mcp-home", "nested") });
   });
 
   it("uses the session cwd for stdio servers without an explicit cwd", async () => {

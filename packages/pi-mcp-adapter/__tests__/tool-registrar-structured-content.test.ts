@@ -45,8 +45,12 @@ describe("resolveMcpResultContent", () => {
     });
 
     expect(readFileSync(path!)).toEqual(data);
-    expect(statSync(path!).mode & 0o777).toBe(0o600);
-    expect(statSync(dirname(path!)).mode & 0o777).toBe(0o700);
+    // Windows has no chmod-style permission bits (files report 0o666);
+    // Pi's other extension tests guard mode checks the same way.
+    if (process.platform !== "win32") {
+      expect(statSync(path!).mode & 0o777).toBe(0o600);
+      expect(statSync(dirname(path!)).mode & 0o777).toBe(0o700);
+    }
 
     cleanupMaterializedBinaryResources();
     expect(existsSync(dirname(path!))).toBe(false);

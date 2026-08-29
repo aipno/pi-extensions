@@ -31,12 +31,22 @@ beforeEach(() => {
 	mkdirSync(cwd, { recursive: true });
 	mkdirSync(temp, { recursive: true });
 	// Make the OS temp dir the fixture only for default-path assertions.
+	// os.tmpdir() reads TMPDIR on POSIX but TMP/TEMP on Windows — set both so
+	// the fixture is honored everywhere.
 	process.env.TMPDIR = temp;
+	if (process.platform === "win32") {
+		process.env.TMP = temp;
+		process.env.TEMP = temp;
+	}
 });
 
 afterEach(() => {
 	rmSync(root, { recursive: true, force: true });
 	delete process.env.TMPDIR;
+	if (process.platform === "win32") {
+		delete process.env.TMP;
+		delete process.env.TEMP;
+	}
 });
 
 const PNG_BASE64 = "iVBORw0KGgo=";

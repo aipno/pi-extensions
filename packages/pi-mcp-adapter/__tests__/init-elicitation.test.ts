@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { resolve } from "node:path";
 import type {
   ExtensionAPI,
   ExtensionContext,
@@ -90,7 +91,7 @@ describe("initializeMcp elicitation config", () => {
     await initializeMcp(extensionApi(), ctx);
 
     expect(mocks.managers[0].setAuthStorageOptions).toHaveBeenCalledWith({
-      baseDir: "/tmp/project/.pi/oauth",
+      baseDir: resolve("/tmp/project", ".pi/oauth"),
     });
   });
 

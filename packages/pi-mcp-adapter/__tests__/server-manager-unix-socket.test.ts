@@ -22,7 +22,9 @@ afterEach(async () => {
   temporaryDirectories.length = 0;
 });
 
-describe("McpServerManager Unix socket transport", () => {
+// Node's unix-socket support on Windows cannot listen on a socket file
+// (EACCES at the OS level), so this transport is effectively POSIX-only.
+describe.skipIf(process.platform === "win32")("McpServerManager Unix socket transport", () => {
   it.each([
     { label: "legacy default", protocolVersion: undefined },
     { label: "auto in-place fallback", protocolVersion: "auto" as const },

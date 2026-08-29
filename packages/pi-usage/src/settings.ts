@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { constants } from "node:fs";
-import { chmod, mkdir, open, rename, rm, writeFile } from "node:fs/promises";
+import { chmod, lstat, mkdir, open, rename, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import { getAgentDir } from "@earendil-works/pi-coding-agent";
 
@@ -166,6 +166,14 @@ export async function loadUsageSettings(
 ): Promise<UsageSettingsState> {
 	throwIfAborted(signal);
 	try {
+		// POSIX rejects symlinks via O_NOFOLLOW (ELOOP); Windows does not honor
+		// that flag, so add an explicit lstat check to refuse symlinks there too.
+		const linkStats = await lstat(path).catch(() => undefined);
+		if (linkStats?.isSymbolicLink()) {
+			const error = new Error("settings path is a symbolic link");
+			(error as NodeJS.ErrnoException).code = "ELOOP";
+			throw error;
+		}
 		const handle = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
 		let text: string;
 		try {

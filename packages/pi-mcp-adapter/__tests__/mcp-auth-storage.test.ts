@@ -80,7 +80,7 @@ describe("mcp-auth storage paths", () => {
       const rel = relative(authDir, filePath);
       expect(rel.startsWith("..")).toBe(false);
       expect(isAbsolute(rel)).toBe(false);
-      expect(rel).toMatch(/^sha256-[a-f0-9]{64}\/tokens\.json$/);
+      expect(rel).toMatch(/^sha256-[a-f0-9]{64}[\\/]tokens\.json$/u);
       expect(existsSync(filePath)).toBe(false);
     }
 
@@ -240,7 +240,11 @@ describe("mcp-auth storage paths", () => {
     expect(entries[0][0]).not.toContain(".chunk.");
   });
 
-  it("routes revoked Linux keyring operations through the recovery helper", () => {
+  it("routes revoked Linux keyring operations through the recovery helper", {
+    // The harness is a bash keyctl shim; the Linux keyring recovery path
+    // does not exist on Windows.
+    skip: process.platform === "win32",
+  }, () => {
     const harnessDir = mkdtempSync(join(tmpdir(), "pi-mcp-keyring-recovery-"));
     const keyctlPath = join(harnessDir, "keyctl");
     const helperPath = join(harnessDir, "helper.cjs");
