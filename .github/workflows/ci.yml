@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: "true"
+  # Pin the npm cache to a single predictable location so it can be backed by
+  # actions/cache on Windows too (npm's default cache dir differs per OS).
+  npm_config_cache: ~/.npm
+
+jobs:
+  test:
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Cache npm cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
+
+      # Installs deps, typechecks and unit-tests every package under packages/.
+      # Cross-platform: the same script runs on bash (ubuntu/macOS), pwsh and
+      # cmd (Windows). See scripts/ci.mjs for per-stage/-package flags.
+      - name: Install, typecheck and test all packages
+        run: node scripts/ci.mjs
+
+  conformance:
+    # Official MCP client conformance suite (bash-based runner). Not part of
+    # the test matrix: Linux-only, and never blocks merges — it reports
+    # conformance drift without failing the build.
+    name: MCP conformance (ubuntu)
+    runs-on: ubuntu-latest
+    needs: test
+    if: always() && needs.test.result == 'success'
+    continue-on-error: true
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install pi-mcp-adapter dependencies
+        working-directory: packages/pi-mcp-adapter
+        run: npm install
+
+      - name: Run MCP client conformance suite
+        working-directory: packages/pi-mcp-adapter
+        run: npm run test:conformance

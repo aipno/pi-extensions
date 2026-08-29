@@ -11,3 +11,16 @@ pi 插件集合
 - [pi-chrome-dev-tools](packages/pi-chrome-dev-tools) — Chrome DevTools 协议集成：`chrome_devtools_*` 工具（列页面/选页面/导航/执行 JS/截图）+ 按需加载器 + 浏览器自启动，`/chrome-devtools` 命令管理工具可用性与连接设置（仿照 narumiruna/pi-extensions 的 pi-chrome-devtools）
 - [pi-stamp](packages/pi-stamp) — 会话转录时间戳 + 计时：每条消息右下暗淡时间戳、响应耗时/助手元数据/工具耗时可选项，`/stamp` 菜单 + `pi-stamp.json` 原子持久化，时间戳不进模型上下文（仿照 narumiruna/pi-extensions 的 pi-stamp）
 - [pi-usage](packages/pi-usage) — 用量查询：`/usage` 菜单查看当前账号在 Codex/Kimi Coding/GitHub Copilot/OpenRouter/OpenCode Zen/xAI/Z.AI 的额度与用量，`/fast` 切换 Codex Fast、Codex 重置安全赎回，statusline 每 5 分钟刷新（仿照 narumiruna/pi-extensions 的 pi-usage，node:test 直跑、无 dist 预构建）
+## CI
+
+GitHub Actions（`.github/workflows/ci.yml`）在 **Ubuntu / Windows / macOS** 三平台 × Node 24 上对全部插件运行 `npm install` + `typecheck` + 单元测试，任一平台失败即标红（`fail-fast: false`，各平台结果互不掩盖）。
+
+本地复现同一流程：
+
+```bash
+node scripts/ci.mjs                        # install + typecheck + test（全部包，并行 3）
+node scripts/ci.mjs --stages typecheck     # 只跑 typecheck
+node scripts/ci.mjs --only pi-mcp-adapter  # 只跑某个包
+```
+
+MCP conformance 套件（bash 依赖）单独在 Ubuntu 上运行且 `continue-on-error`，不阻塞合并。
