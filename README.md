@@ -1,0 +1,13 @@
+# pi-extensions
+
+pi 插件集合
+
+- [pi-subagents](packages/pi-subagents) — 让 Pi 委派任务给子代理
+- [pi-ask-user-question](packages/pi-ask-user-question) — 结构化问卷工具：模型在需要决策时向用户提出带选项的问题（仿照 juicesharp/rpiv-mono 的 rpiv-ask-user-question）
+- [pi-todo](packages/pi-todo) — 实时任务看板：`todo` 工具 + `/todos` 命令 + 编辑器上方的持久化面板，会话重载/压缩后任务不丢失（仿照 juicesharp/rpiv-mono 的 rpiv-todo）
+- [pi-mcp-adapter](packages/pi-mcp-adapter) — MCP 适配器：用一个代理工具按需发现并调用 MCP server，避免把数百个 tool schema 塞进 context（仿照 nicobailon/pi-mcp-adapter）
+- [pi-tui](packages/pi-tui) — Claude Code 风格 TUI 渲染套件：工具卡分组、折叠/展开、rich diff、compact 模式，`/tui-style` 命令 + 配置面板（仿照 minuque/pi-cc-extensions 的核心渲染器套件）
+- [pi-btw](packages/pi-btw) — 侧线程问答：`/btw` 全屏侧线程（菜单/设置/steering 队列/thinking level 循环/bring-to-main 预览与追加/替换），主线对话零干扰（仿照 narumiruna/pi-extensions 的 pi-btw，原创重写、无外部 kit 依赖）
+- [pi-chrome-dev-tools](packages/pi-chrome-dev-tools) — Chrome DevTools 协议集成：`chrome_devtools_*` 工具（列页面/选页面/导航/执行 JS/截图）+ 按需加载器 + 浏览器自启动，`/chrome-devtools` 命令管理工具可用性与连接设置（仿照 narumiruna/pi-extensions 的 pi-chrome-devtools）
+- [pi-stamp](packages/pi-stamp) — 会话转录时间戳 + 计时：每条消息右下暗淡时间戳、响应耗时/助手元数据/工具耗时可选项，`/stamp` 菜单 + `pi-stamp.json` 原子持久化，时间戳不进模型上下文（仿照 narumiruna/pi-extensions 的 pi-stamp）
+- [pi-usage](packages/pi-usage) — 用量查询：`/usage` 菜单查看当前账号在 Codex/Kimi Coding/GitHub Copilot/OpenRouter/OpenCode Zen/xAI/Z.AI 的额度与用量，`/fast` 切换 Codex Fast、Codex 重置安全赎回，statusline 每 5 分钟刷新（仿照 narumiruna/pi-extensions 的 pi-usage，node:test 直跑、无 dist 预构建）

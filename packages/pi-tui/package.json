@@ -1,0 +1,65 @@
+{
+  "name": "pi-tui",
+  "version": "0.1.0",
+  "description": "Pi extension. A Claude Code-style TUI renderer suite: tool card grouping, collapse/expand, rich edit/write diff, and on/compact/off rendering modes (ported from pi-cc-extensions).",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "pi-coding-agent",
+    "tui",
+    "claude-code"
+  ],
+  "homepage": "https://github.com/earendil-works/pi-extensions#readme",
+  "pi": {
+    "extensions": [
+      "./extensions/index.ts"
+    ],
+    "themes": [
+      "./themes/pi-tui-dark.json",
+      "./themes/pi-tui-light.json"
+    ]
+  },
+  "files": [
+    "extensions",
+    "themes",
+    "locales",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@shikijs/cli": "^4.0.2"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "^0.84.0",
+    "@earendil-works/pi-coding-agent": "^0.84.0",
+    "@earendil-works/pi-tui": "^0.84.0"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-ai": {
+      "optional": true
+    },
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "@earendil-works/pi-tui": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-ai": "^0.84.3",
+    "@earendil-works/pi-coding-agent": "^0.84.3",
+    "@earendil-works/pi-tui": "^0.84.3",
+    "@types/node": "^24.13.3",
+    "jiti": "^2.7.0",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --import ./tests/setup-env.ts --test tests/**/*.test.ts"
+  }
+}

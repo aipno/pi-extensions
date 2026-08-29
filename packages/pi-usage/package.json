@@ -1,0 +1,64 @@
+{
+  "name": "pi-usage",
+  "version": "0.2.0",
+  "description": "Pi extension that shows current-account usage for Codex, Kimi For Coding, GitHub Copilot, OpenRouter, OpenCode Zen, Z.AI, and xAI OAuth subscriptions.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "pi-coding-agent",
+    "usage",
+    "quota",
+    "codex",
+    "kimi",
+    "kimi-coding",
+    "copilot",
+    "openrouter",
+    "opencode",
+    "zen",
+    "zai",
+    "glm",
+    "xai",
+    "grok"
+  ],
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*",
+    "@narumitw/pi-tui-kit": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-ai": {
+      "optional": true
+    },
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "@earendil-works/pi-tui": {
+      "optional": true
+    },
+    "@narumitw/pi-tui-kit": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@earendil-works/pi-ai": "^0.84.3",
+    "@earendil-works/pi-coding-agent": "^0.84.3",
+    "@earendil-works/pi-tui": "^0.84.3",
+    "@narumitw/pi-tui-kit": "^0.59.0",
+    "@types/node": "^24.13.3",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "build": "node scripts/build-runtime.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.ts"
+  }
+}

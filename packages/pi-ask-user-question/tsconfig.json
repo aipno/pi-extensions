@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "paths": {
+      "@earendil-works/pi-coding-agent": [
+        "./node_modules/@earendil-works/pi-coding-agent"
+      ],
+      "@earendil-works/pi-tui": [
+        "./node_modules/@earendil-works/pi-tui"
+      ],
+      "typebox": [
+        "./node_modules/typebox"
+      ]
+    }
+  },
+  "include": ["index.ts", "src/**/*.ts", "test/**/*.ts"]
+}

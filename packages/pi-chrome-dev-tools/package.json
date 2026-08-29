@@ -1,0 +1,53 @@
+{
+  "name": "pi-chrome-dev-tools",
+  "version": "0.1.0",
+  "description": "Pi extension that exposes Chrome DevTools Protocol tools.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "pi-coding-agent",
+    "chrome",
+    "devtools",
+    "cdp",
+    "browser"
+  ],
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*",
+    "@narumitw/pi-tui-kit": "*",
+    "typebox": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "@earendil-works/pi-tui": {
+      "optional": true
+    },
+    "@narumitw/pi-tui-kit": {
+      "optional": true
+    },
+    "typebox": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "^0.84.3",
+    "@earendil-works/pi-tui": "^0.84.3",
+    "@narumitw/pi-tui-kit": "^0.59.0",
+    "@types/node": "^24.13.3",
+    "typebox": "^1.1.38",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/unit/*.test.ts"
+  }
+}

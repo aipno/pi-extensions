@@ -1,0 +1,152 @@
+import type { ExtensionContext } from "@earendil-works/pi-coding-agent";
+
+export type PiModel = NonNullable<ExtensionContext["model"]>;
+export type UsageModel = Pick<PiModel, "id" | "name" | "provider">;
+
+export type UsageSemanticsKind = "consumer-subscription" | "api-key" | "project";
+export type UsageUnit = "percent" | "usd" | "currency" | "count";
+export type UsageDisplayState = "current" | "configured";
+
+export interface UsageSemantics {
+	kind: UsageSemanticsKind;
+	label: string;
+}
+
+export interface UsageBucket {
+	id: string;
+	label: string;
+	groupId?: string;
+	groupLabel?: string;
+	modelKeys?: string[];
+	used?: number;
+	remaining?: number;
+	limit?: number;
+	unit: UsageUnit;
+	period?: string;
+	windowMinutes?: number;
+	resetsAt?: number;
+}
+
+export interface UsageMetric {
+	id: string;
+	label: string;
+	value: number | string;
+	unit?: UsageUnit;
+	currency?: string;
+}
+
+export interface UsageReport {
+	providerId: string;
+	providerName: string;
+	capturedAt: number;
+	source: string;
+	semantics: UsageSemantics;
+	accountLabel?: string;
+	buckets: UsageBucket[];
+	metrics: UsageMetric[];
+	notes?: string[];
+}
+
+export interface ResolvedUsageAuth {
+	apiKey?: string;
+	headers: Record<string, string>;
+	fingerprint: string;
+	secrets: string[];
+	model: PiModel;
+}
+
+export interface UsageProviderAdapter {
+	id: string;
+	displayName: string;
+	semantics: UsageSemantics;
+	publishesStatusline?: boolean;
+	query(
+		auth: ResolvedUsageAuth,
+		signal: AbortSignal,
+		timeoutMs: number,
+		guard?: () => Promise<void>,
+	): Promise<UsageReport>;
+}
+
+export type ProviderUsageState =
+	| {
+			providerId: string;
+			providerName: string;
+			displayState: UsageDisplayState;
+			status: "ready";
+			report: UsageReport;
+	  }
+	| {
+			providerId: string;
+			providerName: string;
+			displayState: UsageDisplayState;
+			status: "unsupported" | "auth-unavailable" | "query-failed";
+			message: string;
+	  };
+
+export type GitHubCopilotUsagePayload = {
+	login?: unknown;
+	copilot_plan?: unknown;
+	access_type_sku?: unknown;
+	limited_user_quotas?: unknown;
+	limited_user_reset_date?: unknown;
+	monthly_quotas?: unknown;
+	quota_reset_date?: unknown;
+	quota_reset_date_utc?: unknown;
+	quota_snapshots?: unknown;
+};
+
+export type OpenRouterKeyPayload = {
+	data?: unknown;
+};
+
+export type OpenCodeZenPayload = {
+	usage?: unknown;
+};
+
+export type ZaiQuotaPayload = {
+	data?: unknown;
+};
+
+export type KimiCodingUsagePayload = {
+	usage?: unknown;
+	limits?: unknown;
+	boosterWallet?: unknown;
+};
+
+export type NewApiUserPayload = {
+	success?: unknown;
+	message?: unknown;
+	data?: unknown;
+};
+
+export type NewApiDataPayload = {
+	success?: unknown;
+	message?: unknown;
+	data?: unknown;
+};
+
+export type NewApiDataRow = {
+	model_name?: unknown;
+	created_at?: unknown;
+	token_used?: unknown;
+	count?: unknown;
+	quota?: unknown;
+};
+
+export type XaiUserPayload = {
+	userId?: unknown;
+	subscriptionTier?: unknown;
+};
+
+export type XaiBillingPayload = {
+	config?: unknown;
+};
+
+export type CodexBackendPayload = {
+	plan_type?: unknown;
+	rate_limit?: unknown;
+	additional_rate_limits?: unknown;
+	credits?: unknown;
+	rate_limit_reset_credits?: unknown;
+};
