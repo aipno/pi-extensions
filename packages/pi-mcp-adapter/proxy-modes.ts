@@ -30,7 +30,10 @@ const INSTRUCTIONS_PREVIEW_LENGTH = 300;
 const REGEX_SAFETY_CHECK_PARAMS = {
   attackTimeout: 50,
   incubationTimeout: 50,
-  timeout: 250,
+  // Wall-clock budget, not the attack-detection budget (attackTimeout).
+  // recheck is a large Scala.js bundle; on cold CI runners (Windows) the
+  // first-run JIT warmup alone can exceed 250ms and yield status "unknown".
+  timeout: 2000,
 } as const;
 
 type AutoAuthResult =
