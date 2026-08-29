@@ -192,15 +192,17 @@ import { writeFileSync } from "node:fs";
 process.on("SIGTERM", () => {});
 setTimeout(() => {
   writeFileSync(${JSON.stringify(marker)}, "alive");
-}, 100);
+}, 600);
 setInterval(() => {}, 1000);
 `);
-    const fetch = createRequestHeadersCommandFetch({ command: process.execPath, args: [script], timeoutMs: 25 });
+    const fetch = createRequestHeadersCommandFetch({ command: process.execPath, args: [script], timeoutMs: 75 });
 
     await expect(fetch("https://mcp.example.test/mcp")).rejects.toThrow(
-      "HTTP request headers command timed out after 25ms",
+      "HTTP request headers command timed out after 75ms",
     );
-    await delay(200);
+    // Slow CI runners (Windows esp.) need real time for node startup plus the
+    // taskkill path; the 600ms marker write must land well after the kill.
+    await delay(1200);
     expect(existsSync(marker)).toBe(false);
   });
 
