@@ -10,8 +10,15 @@ function writeJson(path: string, value: unknown): void {
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, "utf-8");
 }
 
+/** os.homedir() reads USERPROFILE on Windows — keep it in sync with HOME. */
+function setHome(home: string): void {
+  process.env.HOME = home;
+  process.env.USERPROFILE = home;
+}
+
 describe("cli init helper", () => {
   const originalHome = process.env.HOME;
+  const originalProfile = process.env.USERPROFILE;
   const originalAgentDir = process.env.PI_CODING_AGENT_DIR;
   const originalPackageDir = process.env.PI_PACKAGE_DIR;
   const originalArcAgentDir = process.env.ARC_CODING_AGENT_DIR;
@@ -23,6 +30,11 @@ describe("cli init helper", () => {
 
   afterEach(() => {
     process.env.HOME = originalHome;
+    if (originalProfile === undefined) {
+      delete process.env.USERPROFILE;
+    } else {
+      process.env.USERPROFILE = originalProfile;
+    }
     if (originalAgentDir === undefined) {
       delete process.env.PI_CODING_AGENT_DIR;
     } else {
@@ -44,7 +56,7 @@ describe("cli init helper", () => {
   it("adds detected host imports to the Pi config", async () => {
     const home = mkdtempSync(join(tmpdir(), "pi-mcp-cli-home-"));
     const project = mkdtempSync(join(tmpdir(), "pi-mcp-cli-project-"));
-    process.env.HOME = home;
+    setHome(home);
     process.chdir(project);
 
     writeJson(join(home, ".claude", "mcp.json"), {
@@ -71,7 +83,7 @@ describe("cli init helper", () => {
   it("detects TOML-only Codex config during dry-run", async () => {
     const home = mkdtempSync(join(tmpdir(), "pi-mcp-cli-codex-home-"));
     const project = mkdtempSync(join(tmpdir(), "pi-mcp-cli-codex-project-"));
-    process.env.HOME = home;
+    setHome(home);
     process.chdir(project);
 
     const codexConfigPath = join(home, ".codex", "config.toml");
@@ -93,7 +105,7 @@ describe("cli init helper", () => {
   it("loads existing Pi config as JSONC and lists .agents standard paths", async () => {
     const home = mkdtempSync(join(tmpdir(), "pi-mcp-cli-jsonc-home-"));
     const project = mkdtempSync(join(tmpdir(), "pi-mcp-cli-jsonc-project-"));
-    process.env.HOME = home;
+    setHome(home);
     process.chdir(project);
 
     mkdirSync(join(home, ".pi", "agent"), { recursive: true });
@@ -121,7 +133,7 @@ describe("cli init helper", () => {
   it("explicitly enables host fallback discovery without changing external files", async () => {
     const home = mkdtempSync(join(tmpdir(), "pi-mcp-cli-discovery-home-"));
     const project = mkdtempSync(join(tmpdir(), "pi-mcp-cli-discovery-project-"));
-    process.env.HOME = home;
+    setHome(home);
     process.chdir(project);
 
     const hostPath = join(home, ".cursor", "mcp.json");
@@ -144,7 +156,7 @@ describe("cli init helper", () => {
     const home = mkdtempSync(join(tmpdir(), "pi-mcp-cli-home-"));
     const agentDir = mkdtempSync(join(tmpdir(), "pi-mcp-cli-agent-"));
     const project = mkdtempSync(join(tmpdir(), "pi-mcp-cli-project-"));
-    process.env.HOME = home;
+    setHome(home);
     process.env.PI_CODING_AGENT_DIR = agentDir;
     process.chdir(project);
 
@@ -176,7 +188,7 @@ describe("cli init helper", () => {
     const packageDir = mkdtempSync(join(tmpdir(), "pi-mcp-cli-branded-package-"));
     const agentDir = mkdtempSync(join(tmpdir(), "pi-mcp-cli-branded-agent-"));
     const project = mkdtempSync(join(tmpdir(), "pi-mcp-cli-branded-project-"));
-    process.env.HOME = home;
+    setHome(home);
     process.env.PI_PACKAGE_DIR = packageDir;
     process.env.ARC_CODING_AGENT_DIR = agentDir;
     process.chdir(project);
@@ -232,6 +244,7 @@ describe("cli init helper", () => {
 
 describe("cli token helper", () => {
   const originalHome = process.env.HOME;
+  const originalProfile = process.env.USERPROFILE;
   const originalAuthStore = process.env.PI_MCP_ADAPTER_TEST_AUTH_STORE;
   const originalCwd = process.cwd();
 
@@ -242,6 +255,11 @@ describe("cli token helper", () => {
 
   afterEach(() => {
     process.env.HOME = originalHome;
+    if (originalProfile === undefined) {
+      delete process.env.USERPROFILE;
+    } else {
+      process.env.USERPROFILE = originalProfile;
+    }
     if (originalAuthStore === undefined) {
       delete process.env.PI_MCP_ADAPTER_TEST_AUTH_STORE;
     } else {
@@ -253,7 +271,7 @@ describe("cli token helper", () => {
   function setupProject(): void {
     const home = mkdtempSync(join(tmpdir(), "pi-mcp-cli-token-home-"));
     const project = mkdtempSync(join(tmpdir(), "pi-mcp-cli-token-project-"));
-    process.env.HOME = home;
+    setHome(home);
     process.chdir(project);
     writeJson(join(project, ".mcp.json"), {
       mcpServers: {
@@ -301,7 +319,7 @@ describe("cli token helper", () => {
   it("rejects servers that are not configured for bearerTokenStore", async () => {
     const home = mkdtempSync(join(tmpdir(), "pi-mcp-cli-token-home-"));
     const project = mkdtempSync(join(tmpdir(), "pi-mcp-cli-token-project-"));
-    process.env.HOME = home;
+    setHome(home);
     process.chdir(project);
     writeJson(join(project, ".mcp.json"), {
       mcpServers: { plain: { url: "https://example.test/mcp" } },

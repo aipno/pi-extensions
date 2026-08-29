@@ -1,0 +1,14 @@
+# Normalize line endings: always LF in the repo and on checkout.
+# Without this, Windows checkouts (git autocrlf on GitHub runners) convert
+# LF→CRLF, which breaks ESM shebang parsing (cli.js) under vitest's transform
+# pipeline ("Invalid or unexpected token").
+* text=auto eol=lf
+
+# Binary assets — never convert.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

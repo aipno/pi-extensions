@@ -381,9 +381,12 @@ describe("config discovery", () => {
     expect(config.mcpServers).toMatchObject({
       acme_tools__local: {
         command: join(realPlugin, "bin", "server"),
-        args: ["--config", join(realPlugin, "config.json"), "--data", join(pluginDataDir, "local")],
+        // Placeholder expansion is a plain string substitution, so the
+        // relative tail keeps its forward slash even on Windows (spawned
+        // processes accept both separators).
+        args: ["--config", `${realPlugin}/config.json`, "--data", `${pluginDataDir}/local`],
         env: {
-          CACHE: join(pluginDataDir, "cache"),
+          CACHE: `${pluginDataDir}/cache`,
           LITERAL_HOME: "${HOME}",
           LITERAL_COMMAND: "!echo pwned",
           PLUGIN_ROOT: realPlugin,
@@ -1462,7 +1465,8 @@ describe("config discovery", () => {
     } = await import("../config.ts");
 
     const importsPreview = previewCompatibilityImports(["cursor", "codex"]);
-    expect(importsPreview.path).toContain(".pi/agent/mcp.json");
+    // Path separators differ per platform (join on win32).
+    expect(importsPreview.path).toContain(join(".pi", "agent", "mcp.json"));
     expect(importsPreview.changed).toBe(true);
     expect(importsPreview.diffText).toContain("+++ after");
     expect(importsPreview.diffText).toContain('+     "codex"');

@@ -8,6 +8,12 @@ function writeJson(path: string, value: unknown): void {
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, "utf-8");
 }
 
+/** os.homedir() reads USERPROFILE on Windows — keep it in sync with HOME. */
+function setHome(home: string): void {
+  process.env.HOME = home;
+  process.env.USERPROFILE = home;
+}
+
 const mocks = {
   createMcpPanel: vi.fn(),
   createMcpSetupPanel: vi.fn(),
@@ -23,6 +29,7 @@ vi.mock("../mcp-setup-panel.ts", () => ({
 
 describe("commands onboarding", () => {
   const originalHome = process.env.HOME;
+  const originalProfile = process.env.USERPROFILE;
   const originalOAuthDir = process.env.MCP_OAUTH_DIR;
   const originalCwd = process.cwd();
 
@@ -40,6 +47,11 @@ describe("commands onboarding", () => {
 
   afterEach(() => {
     process.env.HOME = originalHome;
+    if (originalProfile === undefined) {
+      delete process.env.USERPROFILE;
+    } else {
+      process.env.USERPROFILE = originalProfile;
+    }
     if (originalOAuthDir === undefined) {
       delete process.env.MCP_OAUTH_DIR;
     } else {
@@ -57,7 +69,7 @@ describe("commands onboarding", () => {
   }
 
   it("opens setup mode when no MCP servers are configured", async () => {
-    process.env.HOME = mkdtempSync(join(tmpdir(), "pi-mcp-commands-home-"));
+    setHome(mkdtempSync(join(tmpdir(), "pi-mcp-commands-home-")));
     const ui = createUi();
     const { openMcpPanel } = await import("../commands.ts");
 
@@ -75,7 +87,7 @@ describe("commands onboarding", () => {
   it("shows a one-time shared-config notice in the MCP panel", async () => {
     const home = mkdtempSync(join(tmpdir(), "pi-mcp-commands-home-"));
     const project = mkdtempSync(join(tmpdir(), "pi-mcp-commands-project-"));
-    process.env.HOME = home;
+    setHome(home);
     process.chdir(project);
 
     writeJson(join(home, ".config", "mcp", "mcp.json"), {
@@ -105,7 +117,7 @@ describe("commands onboarding", () => {
   it("does not inspect host-specific configs when opening the MCP panel", async () => {
     const home = mkdtempSync(join(tmpdir(), "pi-mcp-commands-home-"));
     const project = mkdtempSync(join(tmpdir(), "pi-mcp-commands-project-"));
-    process.env.HOME = home;
+    setHome(home);
     process.chdir(project);
     writeJson(join(home, ".config", "mcp", "mcp.json"), {
       mcpServers: { sharedServer: { command: "shared" } },
@@ -134,7 +146,7 @@ describe("commands onboarding", () => {
   it("does not inspect host-specific configs when /mcp opens empty setup", async () => {
     const home = mkdtempSync(join(tmpdir(), "pi-mcp-commands-home-"));
     const project = mkdtempSync(join(tmpdir(), "pi-mcp-commands-project-"));
-    process.env.HOME = home;
+    setHome(home);
     process.chdir(project);
     writeFileSync(join(home, ".claude.json"), "{ malformed", "utf-8");
     mkdirSync(join(home, ".config", "opencode"), { recursive: true });
@@ -213,7 +225,7 @@ describe("commands onboarding", () => {
   });
 
   it("panel reconnect force-clears stale needs-auth state", async () => {
-    process.env.HOME = mkdtempSync(join(tmpdir(), "pi-mcp-commands-reconnect-"));
+    setHome(mkdtempSync(join(tmpdir(), "pi-mcp-commands-reconnect-")));
     const ui = createUi();
     const { updateTokens } = await import("../mcp-auth.ts");
     updateTokens("notion", { accessToken: "token" }, "https://mcp.notion.com/mcp");

@@ -106,7 +106,7 @@ describe("per-request HTTP header commands", () => {
 import { writeFileSync } from "node:fs";
 setTimeout(() => {
   writeFileSync(${JSON.stringify(marker)}, "alive");
-}, 150);
+}, 600);
 setInterval(() => {}, 1000);
 `);
     const script = commandScript(`
@@ -121,7 +121,7 @@ setTimeout(() => {
     await expect(fetch("https://mcp.example.test/mcp")).rejects.toThrow(
       "HTTP request headers command exited with code 7",
     );
-    await delay(220);
+    await delay(800);
     expect(existsSync(marker)).toBe(false);
   });
 
@@ -139,7 +139,7 @@ setTimeout(() => {
 import { writeFileSync } from "node:fs";
 setTimeout(() => {
   writeFileSync(${JSON.stringify(marker)}, "alive");
-}, 150);
+}, 600);
 setInterval(() => {}, 1000);
 `);
     const script = commandScript(`
@@ -156,7 +156,7 @@ setTimeout(() => {
 
     const response = await fetch("https://mcp.example.test/mcp");
     expect(response.status).toBe(200);
-    await delay(220);
+    await delay(800);
     expect(existsSync(marker)).toBe(false);
   });
 
@@ -166,7 +166,7 @@ setTimeout(() => {
 import { writeFileSync } from "node:fs";
 setTimeout(() => {
   writeFileSync(${JSON.stringify(marker)}, "alive");
-}, 150);
+}, 600);
 setInterval(() => {}, 1000);
 `);
     const script = commandScript(`
@@ -181,7 +181,7 @@ setTimeout(() => {
     await expect(fetch("https://mcp.example.test/mcp")).rejects.toThrow(
       "HTTP request headers command returned invalid JSON",
     );
-    await delay(220);
+    await delay(800);
     expect(existsSync(marker)).toBe(false);
   });
 
@@ -256,7 +256,7 @@ setInterval(() => {}, 1000);
 import { writeFileSync } from "node:fs";
 setTimeout(() => {
   writeFileSync(${JSON.stringify(marker)}, "alive");
-}, 150);
+}, 600);
 setInterval(() => {}, 1000);
 `);
     const spawner = commandScript(`
@@ -273,7 +273,7 @@ setInterval(() => {}, 1000);
     await expect(fetch("https://mcp.example.test/mcp")).rejects.toThrow(
       "HTTP request headers command timed out after 75ms",
     );
-    await delay(220);
+    await delay(800);
     expect(existsSync(marker)).toBe(false);
   });
 
@@ -306,7 +306,7 @@ setInterval(() => {}, 1000);
 import { writeFileSync } from "node:fs";
 setTimeout(() => {
   writeFileSync(${JSON.stringify(marker)}, "alive");
-}, 150);
+}, 600);
 setInterval(() => {}, 1000);
 `);
     const script = commandScript(`
@@ -323,7 +323,7 @@ setTimeout(() => {
       await expect(fetch("https://mcp.example.test/mcp")).rejects.toThrow(
         "HTTP request headers command cleanup failed: ps exited with code 1",
       );
-      await delay(220);
+      await delay(800);
       expect(existsSync(marker)).toBe(false);
     } finally {
       delete process.env.PI_MCP_ADAPTER_TEST_FAIL_PS;
@@ -336,7 +336,7 @@ setTimeout(() => {
 import { writeFileSync } from "node:fs";
 setTimeout(() => {
   writeFileSync(${JSON.stringify(marker)}, "alive");
-}, 150);
+}, 600);
 setInterval(() => {}, 1000);
 `);
     const script = commandScript(`
@@ -353,7 +353,7 @@ setTimeout(() => {
       await expect(fetch("https://mcp.example.test/mcp")).rejects.toThrow(
         "HTTP request headers command cleanup failed: ps exited with code 1",
       );
-      await delay(220);
+      await delay(800);
       expect(existsSync(marker)).toBe(false);
     } finally {
       delete process.env.PI_MCP_ADAPTER_TEST_FAIL_PS;
