@@ -6,7 +6,7 @@
  * serialized.
  */
 
-import { mkdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { lstat, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import * as path from "node:path";
 import type { ExtensionAPI, Theme, ToolDefinition, ToolRenderResultOptions } from "@earendil-works/pi-coding-agent";
 import { withFileMutationQueue } from "@earendil-works/pi-coding-agent";
@@ -24,10 +24,50 @@ const writeSchema = Type.Object({
 
 type WriteParams = Static<typeof writeSchema>;
 
+export interface WriteToolDetails {
+	/** Whether the target existed as a regular file before the write. */
+	fileExistedBeforeWrite: boolean;
+	/** Previous file content (UTF-8, bounded) — feeds TUI diff previews. */
+	previousContent?: string;
+	/** Why no previous content is available (shown as "diff unavailable: …"). */
+	diffUnavailableReason?: string;
+}
+
+/** Upper bound for capturing previous content into write details. */
+export const MAX_COMPARABLE_WRITE_BYTES = 512_000;
+
+async function capturePreviousFileState(absolutePath: string): Promise<WriteToolDetails> {
+	let info;
+	try {
+		info = await lstat(absolutePath);
+	} catch (err) {
+		if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+			return { fileExistedBeforeWrite: false };
+		}
+		return { fileExistedBeforeWrite: true, diffUnavailableReason: "unable to inspect the previous file" };
+	}
+	if (!info.isFile()) {
+		return { fileExistedBeforeWrite: true, diffUnavailableReason: "previous path is not a regular file" };
+	}
+	if (info.size > MAX_COMPARABLE_WRITE_BYTES) {
+		return {
+			fileExistedBeforeWrite: true,
+			diffUnavailableReason: `previous file exceeds ${MAX_COMPARABLE_WRITE_BYTES} bytes`,
+		};
+	}
+	try {
+		const bytes = await readFile(absolutePath);
+		const previousContent = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+		return { fileExistedBeforeWrite: true, previousContent };
+	} catch {
+		return { fileExistedBeforeWrite: true, diffUnavailableReason: "previous file is not comparable UTF-8 text" };
+	}
+}
+
 const writeDescription = "Create or overwrite a file with the given content. Parent directories are created automatically. Use only for new files or complete rewrites; for precise changes use the edit tool.";
 
 export function registerWriteTool(pi: ExtensionAPI): void {
-	const definition: ToolDefinition<typeof writeSchema, undefined> = {
+	const definition: ToolDefinition<typeof writeSchema, WriteToolDetails> = {
 		name: "write",
 		label: "write",
 		description: writeDescription,
@@ -50,17 +90,12 @@ export function registerWriteTool(pi: ExtensionAPI): void {
 export async function executeWrite(
 	params: WriteParams,
 	cwd: string,
-): Promise<{ content: { type: "text"; text: string }[]; details: undefined }> {
+): Promise<{ content: { type: "text"; text: string }[]; details: WriteToolDetails }> {
 	const absolutePath = resolveToolPath(params.path, cwd);
 
 	return withFileMutationQueue(absolutePath, async () => {
 		const dir = path.dirname(absolutePath);
-		let existed = false;
-		try {
-			existed = (await stat(absolutePath)).isFile();
-		} catch {
-			// new file
-		}
+		const details = await capturePreviousFileState(absolutePath);
 		await mkdir(dir, { recursive: true });
 
 		// Atomic write: temp file in the same directory, then rename.
@@ -78,7 +113,7 @@ export async function executeWrite(
 			throw err;
 		}
 
-		const action = existed ? "Updated" : "Created";
+		const action = details.fileExistedBeforeWrite ? "Updated" : "Created";
 		const bytes = Buffer.byteLength(params.content, "utf8");
 		return {
 			content: [
@@ -87,7 +122,7 @@ export async function executeWrite(
 					text: `${action} ${params.path} (${bytes} bytes)`,
 				},
 			],
-			details: undefined,
+			details,
 		};
 	});
 }

@@ -327,6 +327,26 @@ test("missing and unavailable write metadata never masquerade as create", () => 
 	}
 });
 
+test("write diff falls back to result details when the metadata store misses", () => {
+	const store = new WriteExecutionMetadataStore();
+	const rendered = renderRichToolResult(
+		"write",
+		{
+			content: [{ type: "text", text: "ok" }],
+			details: { fileExistedBeforeWrite: true, previousContent: "old\n" },
+		},
+		{ expanded: true },
+		theme,
+		{ toolCallId: "external-write", args: { path: "file.ts", content: "new\n" } },
+		store,
+	);
+	const text = output(rendered).join("\n");
+	assert.match(text, /overwritten/);
+	assert.match(text, /old/);
+	assert.match(text, /new/);
+	assert.doesNotMatch(text, /diff unavailable/);
+});
+
 test("write execution captures the 512000-byte boundary and degrades above it", async () => {
 	const directory = await mkdtemp(join(tmpdir(), "pi-tui-diff-"));
 	const path = join(directory, "target.txt");

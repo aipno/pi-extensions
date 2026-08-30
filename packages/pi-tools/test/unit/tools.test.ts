@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { mkdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
-import { executeWrite } from "../../tools/write.ts";
+import { executeWrite, MAX_COMPARABLE_WRITE_BYTES } from "../../tools/write.ts";
 import { executeFind } from "../../tools/find.ts";
 import { executeLs } from "../../tools/ls.ts";
 import { makeFixture } from "./helpers.ts";
@@ -35,6 +35,42 @@ describe("tools/write", () => {
 		const root = await makeFixture({});
 		const r = await executeWrite({ path: "u.txt", content: "héllo 中文" }, root);
 		assert.match(r.content[0].text, /\(13 bytes\)/);
+	});
+
+	it("records previous content in details for diff previews", async () => {
+		const root = await makeFixture({ "x.txt": "old\n" });
+		const r = await executeWrite({ path: "x.txt", content: "new\n" }, root);
+		assert.equal(r.details?.fileExistedBeforeWrite, true);
+		assert.equal(r.details?.previousContent, "old\n");
+		assert.equal(r.details?.diffUnavailableReason, undefined);
+	});
+
+	it("marks new files as created (no previous content)", async () => {
+		const root = await makeFixture({});
+		const r = await executeWrite({ path: "fresh.txt", content: "hello" }, root);
+		assert.equal(r.details?.fileExistedBeforeWrite, false);
+		assert.equal(r.details?.previousContent, undefined);
+	});
+
+	it("refuses binary previous content with a reason", async () => {
+		const root = await makeFixture({});
+		await (await import("node:fs/promises")).writeFile(
+			join(root, "bin.dat"),
+			Buffer.from([0xff, 0xfe, 0x80]),
+		);
+		const r = await executeWrite({ path: "bin.dat", content: "text" }, root);
+		assert.equal(r.details?.fileExistedBeforeWrite, true);
+		assert.match(r.details?.diffUnavailableReason ?? "", /not comparable UTF-8/);
+	});
+
+	it("degrades previous content above the size bound", async () => {
+		const root = await makeFixture({});
+		await (await import("node:fs/promises")).writeFile(
+			join(root, "big.txt"),
+			"a".repeat(MAX_COMPARABLE_WRITE_BYTES + 1),
+		);
+		const r = await executeWrite({ path: "big.txt", content: "small" }, root);
+		assert.match(r.details?.diffUnavailableReason ?? "", /exceeds/);
 	});
 });
 

@@ -6,7 +6,7 @@ import {
 	type DisplayConfigInput,
 } from "./diff-renderer.ts";
 import { DEFAULT_TOOL_DISPLAY_CONFIG } from "../../../config/config.ts";
-import { executeWriteWithMetadata, WriteExecutionMetadataStore } from "./write-execution.ts";
+import { executeWriteWithMetadata, WriteExecutionMetadataStore, type WriteExecutionMeta } from "./write-execution.ts";
 
 function resultText(result: any): string {
 	const blocks = Array.isArray(result?.content) ? result.content : [];
@@ -60,7 +60,9 @@ export function renderRichToolResult(
 	}
 	if (toolName !== "write") return undefined;
 
-	const metadata = writeMetadata.get(context?.toolCallId);
+	// Fall back to the executing tool's own details (e.g. pi-tools' write,
+	// which cannot populate our store) so diffs survive external write owners.
+	const metadata = writeMetadata.get(context?.toolCallId) ?? (result?.details as WriteExecutionMeta | undefined);
 	if (!metadata) {
 		return unavailableComponent("execution metadata is unavailable", theme);
 	}
