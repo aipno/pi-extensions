@@ -25,6 +25,7 @@ import { installCustomFooter } from "./feature/footer.ts";
 
 // feature
 import { installCompactThinking } from "./feature/compact-thinking.ts";
+import { installStreamingReveal } from "./feature/streaming-reveal.ts";
 import agentSummary from "./feature/agent-summary/index.ts";
 import contextUsage from "./feature/context.ts";
 
@@ -41,6 +42,9 @@ export default function (pi: ExtensionAPI): void {
 
 	// render stack：thinking controller 直接交给 style 作 query
 	piTuiStyle(pi, undefined, installCompactThinking(pi, getCompactThinkingConfig()));
+	// 流式平滑渲染：补丁始终安装（与 compact-thinking 同模式），运行时读 config
+	// 决定透传/管线化；注册在 compact-thinking 之后 → 原型链外层，装卸双序安全。
+	installStreamingReveal(pi);
 
 	// features
 	if (config.enableContextCommand) contextUsage(pi);

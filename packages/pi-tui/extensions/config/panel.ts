@@ -123,6 +123,19 @@ function diffEmphasisStyleDescription(style: DiffEmphasisStyle): string {
 	);
 }
 
+function streamingRevealDescription(mode: "off" | "on"): string {
+	if (mode === "on") {
+		return t(
+			"panel.streamingReveal.desc.on",
+			"Assistant text streams in at ~30fps instead of jumping in whole chunks (experimental).",
+		);
+	}
+	return t(
+		"panel.streamingReveal.desc.off",
+		"Assistant text appears as it arrives (default native behavior).",
+	);
+}
+
 /** 额外功能开关项：on/off 二值，描述随状态切换；切换后需重启生效。 */
 function featureToggleSetting(
 	id: string,
@@ -504,7 +517,13 @@ export async function showCcstylePanel(
 			submenu: (_current: string, closeSubmenu: (selected?: string) => void) =>
 				buildNumberInputSubmenu(theme, scrollStepSetting, closeSubmenu),
 		};
-
+		const streamingRevealSetting = {
+			id: "streamingReveal",
+			label: t("panel.streamingReveal.label", "Streaming reveal"),
+			description: streamingRevealDescription(config.streamingReveal),
+			currentValue: config.streamingReveal,
+			values: ["off", "on"],
+		};
 		// 语言设置：切换立即生效（与重启生效的 toggle 类不同），渲染时读 config。
 		const languageSetting = {
 			id: "language",
@@ -697,6 +716,13 @@ export async function showCcstylePanel(
 					});
 					scrollStepSetting.currentValue = String(config.scrollStepLines);
 					break;
+				case "streamingReveal":
+					updateConfig({ streamingReveal: value === "on" ? "on" : "off" });
+					streamingRevealSetting.description = streamingRevealDescription(
+						config.streamingReveal,
+					);
+					// 补丁始终安装、运行时读 config 决定透传/管线化 → 切换即时生效。
+					break;
 				case "language":
 					// 即时生效：languageSetting 渲染时已读取 config；其它面板文案下次打开面板更新。
 					updateConfig({ language: value === "zh" ? "zh" : "en" });
@@ -745,7 +771,13 @@ export async function showCcstylePanel(
 			{
 				id: "ui",
 				label: t("panel.section.ui", "UI"),
-				items: [languageSetting, startupHeaderSetting, footerSetting, scrollStepSetting],
+				items: [
+					languageSetting,
+					startupHeaderSetting,
+					footerSetting,
+					scrollStepSetting,
+					streamingRevealSetting,
+				],
 			},
 			{
 				id: "feature",
@@ -874,3 +906,4 @@ export async function showCcstylePanel(
 	// 面板卸下后主 transcript 重新挂载；再刷一次，吃掉打开期间扫树失败的切换。
 	hooks.refreshCurrentTranscript(ctx, toolGrouping);
 }
+

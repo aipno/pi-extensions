@@ -5,6 +5,9 @@ import { dirname, join } from "node:path";
 
 export type CompactStyleMode = "on" | "compact" | "off";
 
+/** 流式平滑渲染（逐 grapheme 渐进揭示）；默认 off，实验性（§1 定案）。 */
+export type StreamingRevealMode = "off" | "on";
+
 /** UI 文案语言；配置非法值回退 en。 */
 export const CONFIG_LANGUAGES = ["en", "zh"] as const;
 export type ConfigLanguage = (typeof CONFIG_LANGUAGES)[number];
@@ -81,6 +84,8 @@ export type Config = {
 	enableAgentSummary: boolean;
 	enableWorkingMessage: boolean;
 	enableAliases: boolean;
+	/** 流式助手文本逐 grapheme 渐进揭示（30fps 闸 + 断流追赶）。 */
+	streamingReveal: StreamingRevealMode;
 	/** footer 分段组合 preset（default=全量布局；minimal=精简）。 */
 	footerPreset: string;
 	/** footer 分隔符主题（pipe/slash/dot/none）。 */
@@ -144,6 +149,7 @@ export const DEFAULT_CONFIG: Config = {
 	enableAgentSummary: true,
 	enableWorkingMessage: true,
 	enableAliases: true,
+	streamingReveal: "off",
 	footerPreset: "default",
 	footerSeparator: "pipe",
 };
@@ -256,6 +262,11 @@ export function normalizeConfig(input: unknown): Config {
 		enableAgentSummary: source.enableAgentSummary !== false,
 		enableWorkingMessage: source.enableWorkingMessage !== false,
 		enableAliases: source.enableAliases !== false,
+		streamingReveal: pickEnum(
+			source.streamingReveal,
+			["off", "on"],
+			DEFAULT_CONFIG.streamingReveal,
+		),
 		footerPreset:
 			typeof source.footerPreset === "string" &&
 			["default", "minimal"].includes(source.footerPreset)
@@ -320,6 +331,7 @@ export function formatConfigStatus(source: Config = config): string {
 		`agentSummary=${source.enableAgentSummary ? "on" : "off"}`,
 		`workingMsg=${source.enableWorkingMessage ? "on" : "off"}`,
 		`aliases=${source.enableAliases ? "on" : "off"}`,
+		`streamingReveal=${source.streamingReveal}`,
 		`footerPreset=${source.footerPreset}`,
 		`footerSeparator=${source.footerSeparator}`,
 	].join(" · ");
@@ -373,3 +385,4 @@ export function updateConfig(partial: Partial<Config>): void {
 export function setConfig(next: Config): void {
 	Object.assign(config, next);
 }
+

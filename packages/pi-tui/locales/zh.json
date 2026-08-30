@@ -4,112 +4,87 @@
   "panel.section.thinking": "思考",
   "panel.section.ui": "界面",
   "panel.section.feature": "功能",
-
   "panel.language.label": "语言",
   "panel.language.desc": "界面文案语言：en（英文）或 zh（中文）。立即生效。",
-
   "panel.mode.label": "模式",
   "panel.mode.desc.on": "Pi TUI 风格，含丰富的编辑/写入差异视图。可在下方调整差异选项。",
   "panel.mode.desc.compact": "（实验性）每个助手回合一行摘要；编辑/写入复用与 on 相同的 Diff 预览设置。",
   "panel.mode.desc.off": "Pi 原生工具渲染。下方差异选项仍独立生效。",
-
   "panel.exclude.label": "排除工具",
   "panel.exclude.desc.none": "未排除任何工具。Agent 始终保留专用渲染器。回车切换常用工具。",
   "panel.exclude.desc.some": "使用原生渲染器：{names}。Agent 始终原生。回车切换。",
   "panel.exclude.agent.desc": "Agent 始终使用其专用渲染器，无法通过 pi-tui 强制。",
   "panel.exclude.item.desc": "对 {name} 改用 Pi 原生渲染器，而非 Pi TUI 样式。",
   "panel.exclude.submenu.hint": "  Esc 返回样式设置",
-
   "panel.number.custom.label": "  {label} — 自定义值：",
   "panel.number.enter.hint": "  回车应用 · Esc 返回",
   "panel.number.invalid": "无效数字：\"{raw}\"",
-
   "panel.toolInput.label": "输入截断",
   "panel.toolInput.desc": "单个/分组工具摘要中路径、命令、名称的最大字符数。回车输入自定义值。",
-
   "panel.diffView.label": "差异布局",
   "panel.diffView.desc.auto": "自动：终端足够宽时并排，否则单列。",
   "panel.diffView.desc.split": "宽度允许时强制并排布局，否则单列。",
   "panel.diffView.desc.unified": "始终渲染单列统一差异视图。",
-
   "panel.diffIndicator.label": "差异指示符",
   "panel.diffIndicator.desc.bars": "变更行上的竖条指示（默认）。",
   "panel.diffIndicator.desc.classic": "变更行上的经典 +/- 边栏。",
   "panel.diffIndicator.desc.none": "无变更指示符，仅靠颜色区分。",
-
   "panel.diffIndent.label": "缩进指引",
   "panel.diffIndent.desc.off": "行首缩进保持为普通空格。",
   "panel.diffIndent.desc.dots": "将行首缩进可视化为暗色点（·），最多 16 列；行内对齐不受影响。",
-
   "panel.diffEmphasis.label": "片段强调",
   "panel.diffEmphasis.desc.bg": "变更片段使用混合背景色（默认，所有终端可用）。",
   "panel.diffEmphasis.desc.inverse": "变更片段使用反显（SGR 7）——不依赖终端配色即可定位。",
-
   "panel.diffSplit.label": "并排最小宽度",
   "panel.diffSplit.desc": "自动/并排布局切换为双列所需的最小终端宽度。回车输入自定义值。",
-
   "panel.editCollapsed.label": "编辑折叠行数",
   "panel.editCollapsed.desc": "展开提示（Ctrl+O / 点击）前显示的编辑/差异正文行数。写入使用下方独立设置。",
-
   "panel.writeCollapsed.label": "写入折叠行数",
   "panel.writeCollapsed.desc": "写入专用折叠正文行数。0 显示 ↳ created + 展开提示（统计保留在标题行）。回车输入自定义值。",
-
   "panel.wordWrap.label": "差异换行",
   "panel.wordWrap.desc.on": "长差异行在面板宽度内换行。",
   "panel.wordWrap.desc.off": "长差异行在面板宽度处截断。",
-
   "panel.expandedMax.label": "展开最大行数",
   "panel.expandedMax.desc": "展开后 Output/差异正文的最大行数。默认 40 保持 TUI 紧凑；查看大输出时可调高。",
-
   "panel.thinkingTitle.label": "摘要标题",
   "panel.thinkingTitle.desc": "将最新 provider 摘要用作当前思考标题。",
-
   "panel.previewLines.label": "预览行数",
   "panel.previewLines.desc": "思考预览行数；0 隐藏预览正文。",
-
   "panel.animation.label": "动画间隔毫秒",
   "panel.animation.desc": "下一次思考运行时标题动画的间隔。",
-
   "panel.dimThinking.label": "思考文本变暗",
   "panel.dimThinking.desc.on": "思考文本使用主题的 dim 色。",
   "panel.dimThinking.desc.off": "保持默认思考文本颜色。",
-
   "panel.startupHeader.label": "启动页头",
   "panel.startupHeader.desc.on": "新会话显示带方框动画 logo 的页头（模型/工作目录 + 命令提示）。",
   "panel.startupHeader.desc.off": "改用 Pi 原生启动页头。",
-
   "panel.feature.footer.label": "自定义页脚",
   "panel.feature.footer.desc.on": "用状态行替换 Pi 内置页脚：模型 · 思考 | 上下文进度条；cwd | 分支 | MCP | CH | 成本。即时生效。",
   "panel.feature.footer.desc.off": "改用 Pi 原生页脚。",
-
   "footer.mcp.one": "🔌 MCP：1 个服务器已启用",
   "footer.mcp.many": "🔌 MCP：{count} 个服务器已启用",
   "footer.noModel": "无模型",
   "footer.thinkingOff": "关闭",
-
   "panel.scrollStep.label": "滚动步长",
   "panel.scrollStep.desc": "全屏模式下鼠标滚轮滚动行数。",
-
+  "panel.streamingReveal.label": "流式逐字揭示",
+  "panel.streamingReveal.desc.off": "助手文本按到达即显示（原生默认行为）。",
+  "panel.streamingReveal.desc.on": "助手文本以约 30fps 逐字符渐进显示，而非整段跳变（实验性）。",
   "panel.feature.workingMessage.label": "工作消息",
   "panel.feature.workingMessage.desc.on": "在工作条上附加 token 数与耗时。下次重启生效。",
   "panel.feature.workingMessage.desc.off": "仅原生 Working... 底栏。",
-
   "panel.feature.aliases.label": "别名",
   "panel.feature.aliases.desc.on": "启用 /clear 与 /exit 别名。下次重启生效。",
   "panel.feature.aliases.desc.off": "已禁用别名。",
-
   "panel.feature.agentSummary.label": "Agent 摘要",
   "panel.feature.agentSummary.desc.on": "每个 Agent 回合后追加工具统计。下次重启生效。",
   "panel.feature.agentSummary.desc.off": "已禁用 Agent 摘要。",
-
   "panel.feature.contextCommand.label": "上下文占用",
   "panel.feature.contextCommand.desc.on": "/context 显示上下文窗口占用分布与预览。下次重启生效。",
   "panel.feature.contextCommand.desc.off": "已禁用上下文命令。",
-
   "panel.footer": "  回车/空格修改 · 数值项回车输入自定义值 · Tab/Shift+Tab 切换页签 · Esc 关闭",
   "panel.updated": "已更新 {id}：{value}",
   "panel.updated.restart": "已更新 {id}：{value}（下次重启生效）",
-
   "command.tui.desc": "配置 Pi TUI 样式与丰富的差异选项",
   "command.tui.on": "启用 Pi TUI 样式",
   "command.tui.compact": "每个助手消息一行摘要",
@@ -125,7 +100,6 @@
   "command.tui.modeMessage": "Pi TUI 样式：{mode}",
   "command.tui.languageInvalid": "无效语言：{value}。请使用 en 或 zh。",
   "command.tui.languageUpdated": "语言已设为 {lang}（立即生效）",
-
   "thinking.loading": "思考中…",
   "thinking.thoughtFor": "思考 {duration}",
   "thinking.thought": "思考",
@@ -140,14 +114,12 @@
   "thinking.stop.unknownError": "未知错误",
   "thinking.stop.errorPrefix": "错误：{message}",
   "thinking.stop.truncated": "回复在完成前被截断。",
-
   "header.tagline": "我们一起做点大事",
   "header.effort": "{model} · 思考力度 {effort}",
   "header.gettingStarted": "快速上手",
   "header.askPi": "让 Pi 来构建它",
   "header.commands": "命令",
   "header.defaultModel": "默认模型",
-
   "summary.running": "运行中…",
   "summary.ranFor": "耗时 {duration}",
   "summary.ranCommands": "运行了 {n} 条命令",
@@ -158,9 +130,7 @@
   "summary.failed": "{n} 个失败",
   "summary.separator": "，",
   "summary.durationSeparator": " · ",
-
   "working.message": "工作中…（{parts}）",
-
   "context.command.desc": "显示当前上下文窗口占用分布",
   "context.title": "上下文占用",
   "context.subtitle": "{used} / {total} tokens（{percent}%）",

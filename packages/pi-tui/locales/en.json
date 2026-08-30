@@ -4,112 +4,87 @@
   "panel.section.thinking": "Thinking",
   "panel.section.ui": "UI",
   "panel.section.feature": "Feature",
-
   "panel.language.label": "Language",
   "panel.language.desc": "UI text language: en (English) or zh (中文). Applies immediately.",
-
   "panel.mode.label": "Mode",
   "panel.mode.desc.on": "Pi TUI style with rich edit/write diffs. Tune diff options below.",
   "panel.mode.desc.compact": "(Experimental) One summary line per assistant round; edit/write reuse the same Diff preview settings as on.",
   "panel.mode.desc.off": "Pi native tool rendering. Diff options below still apply independently.",
-
   "panel.exclude.label": "Exclude tools",
   "panel.exclude.desc.none": "No tools excluded. Agent always keeps its dedicated renderer. Enter to toggle common tools.",
   "panel.exclude.desc.some": "Native renderer for: {names}. Agent is always native. Enter to toggle.",
   "panel.exclude.agent.desc": "Agent always uses its dedicated renderer and cannot be forced through pi-tui.",
   "panel.exclude.item.desc": "Use Pi native renderer for {name} instead of Pi TUI styling.",
   "panel.exclude.submenu.hint": "  Esc back to Style settings",
-
   "panel.number.custom.label": "  {label} — custom value:",
   "panel.number.enter.hint": "  Enter to apply · Esc to go back",
   "panel.number.invalid": "Invalid number: \"{raw}\"",
-
   "panel.toolInput.label": "Input clip",
   "panel.toolInput.desc": "Max characters for path/command/name in single and grouped tool summaries. Enter to type a custom value.",
-
   "panel.diffView.label": "Diff layout",
   "panel.diffView.desc.auto": "Auto: split when terminal is wide enough, otherwise unified.",
   "panel.diffView.desc.split": "Force side-by-side diff when width allows; otherwise unified.",
   "panel.diffView.desc.unified": "Always render a single unified diff column.",
-
   "panel.diffIndicator.label": "Diff indicator",
   "panel.diffIndicator.desc.bars": "Vertical bar indicators on changed lines (default).",
   "panel.diffIndicator.desc.classic": "Classic +/- gutters on changed lines.",
   "panel.diffIndicator.desc.none": "No change indicators; rely on color alone.",
-
   "panel.diffIndent.label": "Indent guide",
   "panel.diffIndent.desc.off": "Keep leading indentation as plain spaces.",
   "panel.diffIndent.desc.dots": "Visualize leading indentation as dim dots (·) up to 16 columns deep; inline alignment is untouched.",
-
   "panel.diffEmphasis.label": "Segment emphasis",
   "panel.diffEmphasis.desc.bg": "Blended background tint for changed segments (default, works on every terminal).",
   "panel.diffEmphasis.desc.inverse": "Reverse-video (SGR 7) for changed segments — position stays visible regardless of terminal palette.",
-
   "panel.diffSplit.label": "Split min width",
   "panel.diffSplit.desc": "Minimum terminal width before auto/split layout uses side-by-side columns. Enter to type a custom value.",
-
   "panel.editCollapsed.label": "Edit collapsed lines",
   "panel.editCollapsed.desc": "How many edit/diff body lines to show before the expand hint (Ctrl+O / click). Write uses its own setting below.",
-
   "panel.writeCollapsed.label": "Write collapsed lines",
   "panel.writeCollapsed.desc": "Write-only collapsed body lines. 0 shows ↳ created + expand hint (stats stay on the title). Enter to type a custom value.",
-
   "panel.wordWrap.label": "Diff word wrap",
   "panel.wordWrap.desc.on": "Long diff lines wrap within the panel width.",
   "panel.wordWrap.desc.off": "Long diff lines are truncated to the panel width.",
-
   "panel.expandedMax.label": "Expanded max lines",
   "panel.expandedMax.desc": "Max Output/diff body lines when expanded. Default 40 keeps the TUI compact; raise for large dumps.",
-
   "panel.thinkingTitle.label": "Summary title",
   "panel.thinkingTitle.desc": "Use the latest provider summary as the active thinking title.",
-
   "panel.previewLines.label": "Preview lines",
   "panel.previewLines.desc": "Thinking preview lines; 0 hides the preview body.",
-
   "panel.animation.label": "Animation interval ms",
   "panel.animation.desc": "Thinking title animation interval for the next thinking run.",
-
   "panel.dimThinking.label": "Dim thinking text",
   "panel.dimThinking.desc.on": "Thinking text uses the theme's dim color.",
   "panel.dimThinking.desc.off": "Keep the default thinking text color.",
-
   "panel.startupHeader.label": "Startup header",
   "panel.startupHeader.desc.on": "Show the boxed animated logo header (model/cwd + command tips) on new sessions.",
   "panel.startupHeader.desc.off": "Use Pi's native startup header instead.",
-
   "panel.feature.footer.label": "Custom footer",
   "panel.feature.footer.desc.on": "Replace Pi's built-in footer with the status line: model · thinking | context progress; cwd | branch | MCP | CH | cost. Applies immediately.",
   "panel.feature.footer.desc.off": "Use Pi's native footer.",
-
   "footer.mcp.one": "🔌 MCP: 1 server enabled",
   "footer.mcp.many": "🔌 MCP: {count} servers enabled",
   "footer.noModel": "no model",
   "footer.thinkingOff": "off",
-
   "panel.scrollStep.label": "Scroll step",
   "panel.scrollStep.desc": "Mouse wheel scroll lines in fullscreen mode.",
-
+  "panel.streamingReveal.label": "Streaming reveal",
+  "panel.streamingReveal.desc.off": "Assistant text appears as it arrives (default native behavior).",
+  "panel.streamingReveal.desc.on": "Assistant text streams in at ~30fps instead of jumping in whole chunks (experimental).",
   "panel.feature.workingMessage.label": "Working message",
   "panel.feature.workingMessage.desc.on": "Extend Working... footer with token count and elapsed time. Next restart applies.",
   "panel.feature.workingMessage.desc.off": "Native Working... footer only.",
-
   "panel.feature.aliases.label": "Aliases",
   "panel.feature.aliases.desc.on": "/clear and /exit aliases enabled. Next restart applies.",
   "panel.feature.aliases.desc.off": "Aliases disabled.",
-
   "panel.feature.agentSummary.label": "Agent summary",
   "panel.feature.agentSummary.desc.on": "Append per-round tool stats after each agent turn. Next restart applies.",
   "panel.feature.agentSummary.desc.off": "Agent summary disabled.",
-
   "panel.feature.contextCommand.label": "Context usage",
   "panel.feature.contextCommand.desc.on": "/context shows context-window distribution with previews. Next restart applies.",
   "panel.feature.contextCommand.desc.off": "Context command disabled.",
-
   "panel.footer": "  Enter/Space to change · Enter on numbers types a custom value · Tab/Shift+Tab to switch sections · Esc to close",
   "panel.updated": "Updated {id}: {value}",
   "panel.updated.restart": "Updated {id}: {value} (next restart)",
-
   "command.tui.desc": "Configure Pi TUI style and rich diff options",
   "command.tui.on": "Enable Pi TUI style",
   "command.tui.compact": "One summary line per assistant message",
@@ -125,7 +100,6 @@
   "command.tui.modeMessage": "Pi TUI style: {mode}",
   "command.tui.languageInvalid": "Invalid language: {value}. Use en or zh.",
   "command.tui.languageUpdated": "Language set to {lang} (applies immediately)",
-
   "thinking.loading": "Thinking...",
   "thinking.thoughtFor": "Thought for {duration}",
   "thinking.thought": "Thought",
@@ -140,14 +114,12 @@
   "thinking.stop.unknownError": "Unknown error",
   "thinking.stop.errorPrefix": "Error: {message}",
   "thinking.stop.truncated": "Response was truncated before completion.",
-
   "header.tagline": "Let's build something great",
   "header.effort": "{model} · {effort} effort",
   "header.gettingStarted": "Getting started",
   "header.askPi": "Ask Pi to build it",
   "header.commands": "Commands",
   "header.defaultModel": "Default model",
-
   "summary.running": "Running...",
   "summary.ranFor": "Ran for {duration}",
   "summary.ranCommands": "ran {n} command{s}",
@@ -158,9 +130,7 @@
   "summary.failed": "{n} failed",
   "summary.separator": ", ",
   "summary.durationSeparator": " · ",
-
   "working.message": "Working... ({parts})",
-
   "context.command.desc": "Show the current context-window distribution",
   "context.title": "Context Usage",
   "context.subtitle": "{used} / {total} tokens ({percent}%)",
