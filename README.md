@@ -10,6 +10,7 @@ pi 插件集合
 - [pi-btw](packages/pi-btw) — 侧线程问答：`/btw` 全屏侧线程（菜单/设置/steering 队列/thinking level 循环/bring-to-main 预览与追加/替换），主线对话零干扰
 - [pi-chrome-dev-tools](packages/pi-chrome-dev-tools) — Chrome DevTools 协议集成：`chrome_devtools_*` 工具（列页面/选页面/导航/执行 JS/截图）+ 按需加载器 + 浏览器自启动，`/chrome-devtools` 命令管理工具可用性与连接设置
 - [pi-stamp](packages/pi-stamp) — 会话转录时间戳 + 计时：每条消息右下暗淡时间戳、响应耗时/助手元数据/工具耗时可选项，`/stamp` 菜单 + `pi-stamp.json` 原子持久化，时间戳不进模型上下文
+- [pi-tools](packages/pi-tools) — 自研文件工具套件覆盖 pi 内置：纯 TS 搜索引擎（gitignore 感知、可选 rg 快路径）、SQLite/ZIP/TAR 读取、原子写入、fuzzy 多编辑，grep/read/write/find/ls/edit 六件套同名注册即替换原版
 - [pi-usage](packages/pi-usage) — 用量查询：`/usage` 菜单查看当前账号在 Codex/Kimi Coding/GitHub Copilot/OpenRouter/OpenCode Zen/xAI/Z.AI 的额度与用量，`/fast` 切换 Codex Fast、Codex 重置安全赎回，statusline 每 5 分钟刷新（node:test 直跑、无 dist 预构建）
 
 ## CI

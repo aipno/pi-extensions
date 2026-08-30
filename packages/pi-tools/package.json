@@ -1,0 +1,58 @@
+{
+  "name": "pi-tools",
+  "version": "0.1.0",
+  "description": "Pi extension. Self-implemented file tools (grep/read/write/find/ls/edit) that override Pi's built-ins: pure-TypeScript search engine with optional ripgrep fast path, gitignore-aware glob walking, SQLite/zip/tar reading, atomic writes and exact-text multi-edit.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "pi-coding-agent",
+    "tools",
+    "grep",
+    "read",
+    "write",
+    "edit",
+    "find",
+    "ls",
+    "ripgrep",
+    "sqlite"
+  ],
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*",
+    "typebox": "*",
+    "@earendil-works/pi-ai": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "@earendil-works/pi-tui": {
+      "optional": true
+    },
+    "typebox": {
+      "optional": true
+    },
+    "@earendil-works/pi-ai": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "^0.84.3",
+    "@earendil-works/pi-tui": "^0.84.3",
+    "@types/node": "^24.13.3",
+    "typebox": "^1.1.38",
+    "typescript": "^5.9.3",
+    "@earendil-works/pi-ai": "^0.84.3"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/unit/*.test.ts"
+  }
+}
