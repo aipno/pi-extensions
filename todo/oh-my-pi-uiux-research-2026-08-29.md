@@ -11,30 +11,11 @@
 
 ## 一、直接可借鉴（高价值，与我们现有功能同域）
 
-### 1. 流式平滑渲染：StreamingRevealController ★最值得抄的工程
-**是什么**：助手消息流式输出时按 30fps 逐 grapheme 渐进显示（打字机效果），且思考块可单独配置显示策略。
-
-**实现要点**（`packages/coding-agent/src/modes/controllers/streaming-reveal.ts`）：
-- 30fps 定时 tick（`STREAMING_REVEAL_FRAME_MS = 1000/30`），每 tick 前进 `max(3, ceil(backlog/8))` 个 grapheme——backlog 大时加速追赶、小时匀速，永不变卡顿（`nextStep()`，:201）。
-- **增量 grapheme 计数缓存**（`BlockUnitCounter`，:88）：流式块只追加，缓存 `{text, count, tailStart}`，下次只需从上一末尾 cluster 起重算，避免每帧全文重分词。
-- **组件级渲染请求**：tick 只对变化的 message 组件调 `requestComponentRender(component)`，不整树重绘。注释里给了实测数据：全树 30fps 重绘 alone 吃 5% CPU（issue #4377）。
-- provider delta 快于 tick 时把多次 delta 合并进下一帧（coalesce），绝不丢字。
-
-**我们的差距/机会**：我们的 footer 有 750ms 心跳，但助手消息/工具结果是"有更新就整屏重绘"。可把「帧率节流 + 组件域渲染 + 追赶步长」这套思想用于工具卡片流式更新（尤其 spinner 与 partial diff）。
-
-### 2. 行内 word 级 diff 反显 + 缩进可视化（intra-line diff）
-**实现要点**（`packages/coding-agent/src/modes/components/diff.ts`；流式抖动抑制部分已于 08-29 落地，见五节记录）：
-- 行内 word-level diff（`diffWords` 来自 Rust natives），改动片段用 **inverse 视频反显** 而非红绿底。
-- `visualizeIndent()`：行首空白用暗色 `·`（空间）和 ` → `（tab）可视化，仅首段缩进，不影响其余内容（:18-39）。
-
-### 3. Composer 形态注册表（8 种输入框样式 + 扩展注册）
-**实现要点**（`packages/tui/src/components/composer/`）：
-- `ComposerStyle` 契约：`{id, sideBorders, verticalChrome, renderTop/renderRow/renderBottom, statusAttachment, bottomBar, defaultPromptGutter…}`，box/band/**claude**/pi/borderless/rule/field/rail 八种内置。
-- 关键设计：**编辑器、/settings 预览、setup-wizard 预览同一套 style 对象渲染**，三个表面永不漂移（types.ts 顶部注释明说这是设计目标）。
-- `registerComposerStyle()` 允许扩展进程内注册新形态（registry.ts:33），冲突/覆盖内建 id 直接抛错。
-- `claude` 形态：上下横线 + 无边框 `❯ ` 提示符，右侧状态 chip 骑在顶线上（`────── hi ─`），与我们已有的 footer 风格同源。
-
-**我们的机会**：我们的 `/tui-style` 面板若要加"输入框样式"项，可直接移植这套 registry（~50 行核心）；样式契约束缚住"设置预览"与实际渲染，避免调了参数看不到真实效果。
+> 本节 1-3 条已抽为独立落地计划：[pi-tui-omp-landing-plan-2026-08-30.md](pi-tui-omp-landing-plan-2026-08-30.md)。概要：
+> 1. **流式平滑渲染**（StreamingRevealController）— ⏸ 阻塞：宿主缺 `requestComponentRender` 与 per-delta 事件（2026-08-30 核实）；
+> 2. **intra-line diff 反显 + 缩进可视化** — 待实现（`diff-inline.ts` 已有 token 级切分，抖抑制已落地；缺 inverse 与缩进可视化）；
+> 3. **Composer 形态注册表** — ⏸ 阻塞/看需求：宿主无扩展可用的 composer 渲染入口。
+> 以下小节编号沿用调研原文，4-9 为未抽出的其余条目。
 
 ---
 
@@ -95,8 +76,7 @@ tips.txt 轮播 + welcome 常驻 + 「press ← ← 钻入运行中 agent」这�
 
 | # | 事项 | 预估成本 | 优先级 |
 |---|---|---|---|
-| 1 | 流式 reveal（30fps 渐进 + 组件域渲染）评估 | 中高，需宿主事件配合 | △ 观望（宿主 API 探测未做） |
-| 2 | composer 形态注册表 → /tui-style 增加输入框样式项 | 中 | △ 看需求（宿主无 composer 渲染入口） |
+| 1-2 | 流式 reveal 评估 / composer 形态注册表（已抽为独立计划，见一节指引） | – | △ 见计划 |
 | 3 | `->` 队列速记 | 低 | △ 看需求 |
 
 ---
