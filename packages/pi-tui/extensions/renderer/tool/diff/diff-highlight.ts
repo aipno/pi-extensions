@@ -5,15 +5,21 @@ import { MAX_HL_CHARS, shikiHighlightCache } from "./shiki-highlight.ts";
 import { normalizeCodeWhitespace } from "./diff-text.ts";
 import {
 	applyInlineSpanHighlight,
+	applyInlineSpanInverse,
 	getLineBackground,
 	resolveShikiTheme,
 	type DiffPalette,
 	type DiffTheme,
 } from "./diff-palette.ts";
+import { leadingIndentWidth, visualizeIndentAnsi } from "./diff-stream-guard.ts";
 import type { DiffLineEntry, ParsedDiffEntry } from "./diff-parse.ts";
 import type { DiffSpan } from "./diff-inline.ts";
+import type { DiffEmphasisStyle } from "../../../config/config.ts";
 
 export type CodeLineHighlighter = (line: string, entry: DiffLineEntry) => string;
+
+/** 缩进可视化 cap：深缩进文件避免满屏 `·`（§0.1 定案）。 */
+export const MAX_INDENT_GUIDE = 16;
 
 function cleanCodeLine(line: string): string {
 	return sanitizeToolResultText(line).replace(/\n/g, "");
@@ -91,6 +97,16 @@ export function createCodeLineHighlighter(
 	};
 }
 
+/** highlightDiffLine 的可选项：缩进可视化与强调样式的运行时开关（live config）。 */
+export interface DiffLineHighlightOptions {
+	/** 行内改动片段强调：bg = 混合背景色（默认，行为不变）；inverse = SGR 7 反显。 */
+	emphasisStyle?: DiffEmphasisStyle;
+	/** 行首缩进可视化（`·`，cap 16）。 */
+	indentGuide?: boolean;
+	/** indentGuide 时 `·` 的着色器（通常 theme.fg("dim", …)）。 */
+	indentPaint?: (text: string) => string;
+}
+
 export function highlightDiffLine(
 	codeText: string,
 	entry: DiffLineEntry,
@@ -98,18 +114,34 @@ export function highlightDiffLine(
 	palette: DiffPalette,
 	highlightLine: CodeLineHighlighter,
 	containerBgAnsi: string | undefined,
+	options: DiffLineHighlightOptions = {},
 ): { highlighted: string; rowBg: string | undefined } {
 	const syntaxHighlighted = highlightLine(codeText, entry);
 	const rowBg = getLineBackground(entry.lineKind, palette, false);
-	const emphasisBg = getLineBackground(entry.lineKind, palette, true);
 	const inlineSpans = inlineHighlights.get(entry) ?? [];
-	const highlighted = applyInlineSpanHighlight(
-		codeText,
-		syntaxHighlighted,
-		inlineSpans,
-		emphasisBg,
-		rowBg,
-		containerBgAnsi,
-	);
+	const emphasisStyle = options.emphasisStyle ?? "bg";
+	let highlighted =
+		emphasisStyle === "inverse"
+			? applyInlineSpanInverse(codeText, syntaxHighlighted, inlineSpans, rowBg)
+			: applyInlineSpanHighlight(
+					codeText,
+					syntaxHighlighted,
+					inlineSpans,
+					getLineBackground(entry.lineKind, palette, true),
+					rowBg,
+					containerBgAnsi,
+				);
+	if (options.indentGuide) {
+		const indent = Math.min(leadingIndentWidth(codeText), MAX_INDENT_GUIDE);
+		if (indent > 0) {
+			const paint =
+				options.indentPaint ??
+				((text: string) => {
+					// 防御：着色器失败（无 dim 色）回退裸 `·`，不产出错误内容。
+					return text;
+				});
+			highlighted = visualizeIndentAnsi(codeText, highlighted, indent, paint);
+		}
+	}
 	return { highlighted, rowBg };
 }

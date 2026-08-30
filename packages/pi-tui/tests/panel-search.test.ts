@@ -52,8 +52,23 @@ test("Diff 页签启用 type-to-filter：打字过滤 item 集合，Esc 无关�
 
 	// 切到 Diff 页签（Style → Diff）
 	panel.handleInput("\t");
-	const DIFF_LABELS = ["Diff layout", "Diff indicator", "Split min width", "Edit collapsed lines", "Write collapsed lines", "Diff word wrap", "Expanded max lines", "Input clip"];
-	assert.ok(hasSearchHint(renderLines(panel)), "Diff 页签 8 项 > 5 应启用搜索");
+	// Diff 节现共 10 项（含 Indent guide / Segment emphasis），列表视口只显示前 8 行。
+	const DIFF_LABELS = [
+		"Diff layout",
+		"Diff indicator",
+		"Indent guide",
+		"Segment emphasis",
+		"Split min width",
+		"Edit collapsed lines",
+		"Write collapsed lines",
+		"Diff word wrap",
+	];
+	assert.ok(hasSearchHint(renderLines(panel)), "Diff 页签 10 项 > 5 应启用搜索");
+	assert.ok(
+		renderLines(panel).join("\n").includes("Indent guide") &&
+			renderLines(panel).join("\n").includes("Segment emphasis"),
+		"Diff 页签包含新增的 Indent guide 与 Segment emphasis 两项",
+	);
 
 	// 打字 "split" → 过滤（只剩 Split min width 命中）
 	panel.handleInput("s");

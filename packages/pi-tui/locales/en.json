@@ -37,6 +37,14 @@
   "panel.diffIndicator.desc.classic": "Classic +/- gutters on changed lines.",
   "panel.diffIndicator.desc.none": "No change indicators; rely on color alone.",
 
+  "panel.diffIndent.label": "Indent guide",
+  "panel.diffIndent.desc.off": "Keep leading indentation as plain spaces.",
+  "panel.diffIndent.desc.dots": "Visualize leading indentation as dim dots (·) up to 16 columns deep; inline alignment is untouched.",
+
+  "panel.diffEmphasis.label": "Segment emphasis",
+  "panel.diffEmphasis.desc.bg": "Blended background tint for changed segments (default, works on every terminal).",
+  "panel.diffEmphasis.desc.inverse": "Reverse-video (SGR 7) for changed segments — position stays visible regardless of terminal palette.",
+
   "panel.diffSplit.label": "Split min width",
   "panel.diffSplit.desc": "Minimum terminal width before auto/split layout uses side-by-side columns. Enter to type a custom value.",
 

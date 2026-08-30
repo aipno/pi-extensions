@@ -521,6 +521,8 @@ export function renderWriteDiffResult(
 				containerBgAnsi,
 				wordWrap,
 				indicatorMode,
+				emphasisStyle: live.diffEmphasisStyle,
+				indentGuide: live.diffIndentGuide,
 				showHashlineAnchors: false,
 			};
 			const bodyRows: RenderedRow[] =

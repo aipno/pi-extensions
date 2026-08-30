@@ -17,6 +17,8 @@ import {
 	CONFIG_LANGUAGES,
 	DEFAULT_CONFIG,
 	DIFF_COLLAPSED_LINES_VALUES,
+	DIFF_EMPHASIS_STYLES,
+	DIFF_INDENT_GUIDE_MODES,
 	DIFF_INDICATOR_MODES,
 	DIFF_SPLIT_MIN_WIDTH_VALUES,
 	DIFF_VIEW_MODES,
@@ -34,7 +36,9 @@ import {
 	updateConfig,
 	type CompactStyleMode,
 	type Config,
+	type DiffEmphasisStyle,
 	type DiffIndicatorMode,
+	type DiffIndentGuideMode,
 	type DiffViewMode,
 } from "./config.ts";
 
@@ -94,6 +98,29 @@ function diffIndicatorDescription(mode: DiffIndicatorMode): string {
 		return t("panel.diffIndicator.desc.none", "No change indicators; rely on color alone.");
 	}
 	return t("panel.diffIndicator.desc.bars", "Vertical bar indicators on changed lines (default).");
+}
+
+function diffIndentGuideDescription(mode: DiffIndentGuideMode): string {
+	if (mode === "dots") {
+		return t(
+			"panel.diffIndent.desc.dots",
+			"Visualize leading indentation as dim dots (·) up to 16 columns deep; inline alignment is untouched.",
+		);
+	}
+	return t("panel.diffIndent.desc.off", "Keep leading indentation as plain spaces.");
+}
+
+function diffEmphasisStyleDescription(style: DiffEmphasisStyle): string {
+	if (style === "inverse") {
+		return t(
+			"panel.diffEmphasis.desc.inverse",
+			"Reverse-video (SGR 7) for changed segments — position stays visible regardless of terminal palette.",
+		);
+	}
+	return t(
+		"panel.diffEmphasis.desc.bg",
+		"Blended background tint for changed segments (default, works on every terminal).",
+	);
 }
 
 /** 额外功能开关项：on/off 二值，描述随状态切换；切换后需重启生效。 */
@@ -333,6 +360,20 @@ export async function showCcstylePanel(
 			currentValue: config.diffIndicatorMode,
 			values: [...DIFF_INDICATOR_MODES],
 		};
+		const diffIndentGuideSetting = {
+			id: "diffIndentGuide",
+			label: t("panel.diffIndent.label", "Indent guide"),
+			description: diffIndentGuideDescription(config.diffIndentGuide),
+			currentValue: config.diffIndentGuide,
+			values: [...DIFF_INDENT_GUIDE_MODES],
+		};
+		const diffEmphasisStyleSetting = {
+			id: "diffEmphasisStyle",
+			label: t("panel.diffEmphasis.label", "Segment emphasis"),
+			description: diffEmphasisStyleDescription(config.diffEmphasisStyle),
+			currentValue: config.diffEmphasisStyle,
+			values: [...DIFF_EMPHASIS_STYLES],
+		};
 		const diffSplitSetting = {
 			id: "diffSplitMinWidth",
 			label: t("panel.diffSplit.label", "Split min width"),
@@ -560,6 +601,16 @@ export async function showCcstylePanel(
 					updateConfig({ diffIndicatorMode: value as DiffIndicatorMode });
 					diffIndicatorSetting.description = diffIndicatorDescription(config.diffIndicatorMode);
 					break;
+				case "diffIndentGuide":
+					updateConfig({ diffIndentGuide: value as DiffIndentGuideMode });
+					diffIndentGuideSetting.description = diffIndentGuideDescription(config.diffIndentGuide);
+					break;
+				case "diffEmphasisStyle":
+					updateConfig({ diffEmphasisStyle: value as DiffEmphasisStyle });
+					diffEmphasisStyleSetting.description = diffEmphasisStyleDescription(
+						config.diffEmphasisStyle,
+					);
+					break;
 				case "diffSplitMinWidth":
 					updateConfig({
 						diffSplitMinWidth: pickPositiveInt(value, DEFAULT_CONFIG.diffSplitMinWidth, 40, 300),
@@ -671,6 +722,8 @@ export async function showCcstylePanel(
 				items: [
 					diffViewSetting,
 					diffIndicatorSetting,
+					diffIndentGuideSetting,
+					diffEmphasisStyleSetting,
 					diffSplitSetting,
 					diffCollapsedSetting,
 					writeDiffCollapsedSetting,

@@ -1,4 +1,5 @@
 import { truncateToWidth, visibleWidth, wrapTextWithAnsi } from "@earendil-works/pi-tui";
+import { closeDanglingInverseAnsi } from "./ansi-utils.ts";
 
 export function pluralize(count: number, singular: string, plural = `${singular}s`): string {
 	return count === 1 ? singular : plural;
@@ -23,8 +24,10 @@ export function normalizeCodeWhitespace(text: string): string {
 
 export function fitToWidth(text: string, width: number): string {
 	const trimmed = truncateToWidth(text, width, "");
-	const gap = Math.max(0, width - visibleWidth(trimmed));
-	return gap > 0 ? `${trimmed}${" ".repeat(gap)}` : trimmed;
+	// 超宽行截断可能切掉反显区间的 `\x1b[27m`，收尾补发防止残留反显蔓延。
+	const closed = closeDanglingInverseAnsi(trimmed);
+	const gap = Math.max(0, width - visibleWidth(closed));
+	return gap > 0 ? `${closed}${" ".repeat(gap)}` : closed;
 }
 
 export function wrapToWidth(text: string, width: number, wordWrap: boolean): string[] {

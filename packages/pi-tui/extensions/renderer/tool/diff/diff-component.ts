@@ -38,6 +38,8 @@ export function displayConfigCacheKey(config: ToolDisplayConfig): string {
 	return [
 		config.diffViewMode,
 		config.diffIndicatorMode,
+		config.diffIndentGuide,
+		config.diffEmphasisStyle,
 		String(config.diffSplitMinWidth),
 		String(config.editDiffCollapsedLines),
 		String(config.writeDiffCollapsedLines),

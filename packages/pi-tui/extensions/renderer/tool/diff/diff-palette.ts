@@ -3,7 +3,10 @@ import {
 	expandSgrReset,
 	filterSgrSequences,
 	readSgrColorSequence,
+	sequenceResetsInverse,
 	toSgrParams,
+	INVERSE_OPEN_ANSI,
+	INVERSE_CLOSE_ANSI,
 } from "./ansi-utils.ts";
 import { ansi256ToRgb } from "../../../utils/ansi-color.ts";
 import { rgbToBgAnsiForTerminal } from "../../../utils/terminal-capabilities.ts";
@@ -309,12 +312,12 @@ export function getLineBackground(
 	return undefined;
 }
 
-function applyBackgroundToVisibleRange(
+function applySgrToVisibleRange(
 	ansiText: string,
 	start: number,
 	end: number,
-	backgroundAnsi: string,
-	restoreBackgroundAnsi: string,
+	openSgr: string,
+	restoreSgr: string,
 ): string {
 	if (!ansiText || start >= end || end <= 0) {
 		return ansiText;
@@ -338,11 +341,11 @@ function applyBackgroundToVisibleRange(
 		}
 
 		if (visibleIndex === rangeStart && !inRange) {
-			output += backgroundAnsi;
+			output += openSgr;
 			inRange = true;
 		}
 		if (visibleIndex === rangeEnd && inRange) {
-			output += restoreBackgroundAnsi;
+			output += restoreSgr;
 			inRange = false;
 		}
 
@@ -352,7 +355,7 @@ function applyBackgroundToVisibleRange(
 	}
 
 	if (inRange) {
-		output += restoreBackgroundAnsi;
+		output += restoreSgr;
 	}
 
 	return output;
@@ -389,7 +392,7 @@ export function applyInlineSpanHighlight(
 		if (!span) {
 			continue;
 		}
-		highlighted = applyBackgroundToVisibleRange(
+		highlighted = applySgrToVisibleRange(
 			highlighted,
 			span.start,
 			span.end,
@@ -399,6 +402,105 @@ export function applyInlineSpanHighlight(
 	}
 
 	return highlighted;
+}
+
+/**
+ * 行内改动片段的 inverse 反显（SGR 7/27）：区间内序列变换，与 keepBackgroundAcrossResets
+ * 同语义——遇 reset（0 或 27）后重开 inverse + 重发 rowBg，保证区间内背景连续。
+ * 区间结束 `\x1b[27m` 后无需重发 rowBg（27m 不改 fg/bg 状态）。
+ * 行背景本身的兜底仍由调用方（applyLineBackgroundToWrappedRows + keepBackgroundAcrossResets）负责。
+ */
+export function applyInlineSpanInverse(
+	plainText: string,
+	renderedText: string,
+	spans: DiffSpan[],
+	rowBgAnsi: string | undefined,
+): string {
+	if (!renderedText || !plainText || spans.length === 0) {
+		return renderedText;
+	}
+
+	const sorted = mergeSpans(
+		spans
+			.map((span) => ({
+				start: Math.max(0, Math.min(plainText.length, span.start)),
+				end: Math.max(0, Math.min(plainText.length, span.end)),
+			}))
+			.filter((span) => span.end > span.start),
+	);
+	if (sorted.length === 0) {
+		return renderedText;
+	}
+
+	let highlighted = renderedText;
+	for (let index = sorted.length - 1; index >= 0; index--) {
+		const span = sorted[index];
+		if (!span) {
+			continue;
+		}
+		highlighted = applyInverseToVisibleRange(highlighted, span.start, span.end, rowBgAnsi);
+	}
+
+	return highlighted;
+}
+
+/**
+ * 对可见区间 [start, end) 施加反显：区间开头 `\x1b[7m`、区间结束 `\x1b[27m`；
+ * 区间内的 reset 序列变换为 `序列 + rowBg(如有) + \x1b[7m`（重开反显 + 重发行背景）。
+ */
+function applyInverseToVisibleRange(
+	ansiText: string,
+	start: number,
+	end: number,
+	rowBgAnsi: string | undefined,
+): string {
+	if (!ansiText || start >= end || end <= 0) {
+		return ansiText;
+	}
+
+	const rangeStart = Math.max(0, start);
+	const rangeEnd = Math.max(rangeStart, end);
+	const SGR_CONTENT = /\x1b\[([0-9;]*)m/y;
+	let output = "";
+	let visibleIndex = 0;
+	let index = 0;
+	let inRange = false;
+
+	while (index < ansiText.length) {
+		if (ansiText[index] === "\x1b") {
+			SGR_CONTENT.lastIndex = index;
+			const sgr = SGR_CONTENT.exec(ansiText);
+			if (sgr && sgr.index === index) {
+				let sequence = sgr[0];
+				if (inRange && sequenceResetsInverse(sgr[1] ?? "")) {
+					// reset → 重开 inverse + 重发 rowBg（与 keepBackgroundAcrossResets 同语义）。
+					sequence = `${sequence}${rowBgAnsi ?? ""}${INVERSE_OPEN_ANSI}`;
+				}
+				output += sequence;
+				index += sgr[0].length;
+				continue;
+			}
+		}
+
+		if (visibleIndex === rangeStart && !inRange) {
+			output += INVERSE_OPEN_ANSI;
+			inRange = true;
+		}
+		if (visibleIndex === rangeEnd && inRange) {
+			output += INVERSE_CLOSE_ANSI;
+			inRange = false;
+		}
+
+		output += ansiText[index] ?? "";
+		visibleIndex++;
+		index++;
+	}
+
+	if (inRange) {
+		output += INVERSE_CLOSE_ANSI;
+	}
+
+	return output;
 }
 
 export function resolveShikiTheme(theme: DiffTheme): string {

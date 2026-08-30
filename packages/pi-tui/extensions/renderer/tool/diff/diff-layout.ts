@@ -20,7 +20,11 @@ import {
 } from "./diff-parse.ts";
 import { getCellLineNumber, type DiffSpan, type SplitDiffRow } from "./diff-inline.ts";
 import { formatMetaEntryRows } from "./diff-header.ts";
-import type { DiffIndicatorMode } from "../../../config/config.ts";
+import type {
+	DiffEmphasisStyle,
+	DiffIndicatorMode,
+	DiffIndentGuideMode,
+} from "../../../config/config.ts";
 
 export interface RenderedRow {
 	text: string;
@@ -47,6 +51,10 @@ export interface DiffRenderContext {
 	containerBgAnsi: string | undefined;
 	wordWrap: boolean;
 	indicatorMode: DiffIndicatorMode;
+	/** 行内改动片段强调样式（bg/inverse），live config 直读。 */
+	emphasisStyle: DiffEmphasisStyle;
+	/** 行首缩进可视化开关（dots=可视化，off=否）。 */
+	indentGuide: DiffIndentGuideMode;
 	showHashlineAnchors: boolean;
 }
 
@@ -420,6 +428,11 @@ export function renderUnified(
 			ctx.palette,
 			ctx.highlightLine,
 			ctx.containerBgAnsi,
+			{
+				emphasisStyle: ctx.emphasisStyle,
+				indentGuide: ctx.indentGuide === "dots",
+				indentPaint: (text: string) => ctx.theme.fg("dim", text),
+			},
 		);
 		return renderLineCell(
 			buildLineCellParams(
@@ -471,6 +484,11 @@ export function renderCompact(entries: ParsedDiffEntry[], ctx: DiffRenderContext
 			ctx.palette,
 			ctx.highlightLine,
 			ctx.containerBgAnsi,
+			{
+				emphasisStyle: ctx.emphasisStyle,
+				indentGuide: ctx.indentGuide === "dots",
+				indentPaint: (text: string) => ctx.theme.fg("dim", text),
+			},
 		);
 		return renderCompactLineCell(
 			buildLineCellParams(
@@ -528,6 +546,8 @@ function renderSplitCell(
 	containerBgAnsi: string | undefined,
 	wordWrap: boolean,
 	indicatorMode: DiffIndicatorMode,
+	emphasisStyle: DiffEmphasisStyle,
+	indentGuide: DiffIndentGuideMode,
 	showHashlineAnchors: boolean,
 ): string[] {
 	const hashlineGutter = usesHashlineGutter(showHashlineAnchors);
@@ -552,6 +572,11 @@ function renderSplitCell(
 		palette,
 		highlightLine,
 		containerBgAnsi,
+		{
+			emphasisStyle,
+			indentGuide: indentGuide === "dots",
+			indentPaint: (text: string) => theme.fg("dim", text),
+		},
 	);
 	return renderLineCell(
 		buildLineCellParams(
@@ -650,6 +675,8 @@ export function renderSplit(
 		containerBgAnsi,
 		wordWrap,
 		indicatorMode,
+		emphasisStyle,
+		indentGuide,
 		showHashlineAnchors,
 	} = ctx;
 	if (!canRenderSplitLayout(width)) {
@@ -691,6 +718,8 @@ export function renderSplit(
 			containerBgAnsi,
 			wordWrap,
 			indicatorMode,
+			emphasisStyle,
+			indentGuide,
 			showHashlineAnchors,
 		);
 		const rightCells = renderSplitCell(
@@ -705,6 +734,8 @@ export function renderSplit(
 			containerBgAnsi,
 			wordWrap,
 			indicatorMode,
+			emphasisStyle,
+			indentGuide,
 			showHashlineAnchors,
 		);
 

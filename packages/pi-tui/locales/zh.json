@@ -37,6 +37,14 @@
   "panel.diffIndicator.desc.classic": "变更行上的经典 +/- 边栏。",
   "panel.diffIndicator.desc.none": "无变更指示符，仅靠颜色区分。",
 
+  "panel.diffIndent.label": "缩进指引",
+  "panel.diffIndent.desc.off": "行首缩进保持为普通空格。",
+  "panel.diffIndent.desc.dots": "将行首缩进可视化为暗色点（·），最多 16 列；行内对齐不受影响。",
+
+  "panel.diffEmphasis.label": "片段强调",
+  "panel.diffEmphasis.desc.bg": "变更片段使用混合背景色（默认，所有终端可用）。",
+  "panel.diffEmphasis.desc.inverse": "变更片段使用反显（SGR 7）——不依赖终端配色即可定位。",
+
   "panel.diffSplit.label": "并排最小宽度",
   "panel.diffSplit.desc": "自动/并排布局切换为双列所需的最小终端宽度。回车输入自定义值。",
 

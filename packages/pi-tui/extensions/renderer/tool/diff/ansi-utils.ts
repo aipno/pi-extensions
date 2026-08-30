@@ -108,6 +108,54 @@ export function filterSgrSequences(text: string, filter: (params: number[]) => n
 	});
 }
 
+/** 逆反显序列：`\x1b[7m`（开）与 `\x1b[27m`（关）。 */
+export const INVERSE_OPEN_ANSI = "\x1b[7m";
+export const INVERSE_CLOSE_ANSI = "\x1b[27m";
+
+const ANSI_SGR_SCAN_PATTERN = /\x1b\[([0-9;]*)m/g;
+
+/**
+ * 序列是否重置反显（params 含 0 = 全重置，或 27 = 显式关反显）。
+ * 与 diff-palette 的 sequenceResetsBackground 同语义：只关心会清掉 inverse 的序列。
+ */
+export function sequenceResetsInverse(rawParams: string): boolean {
+	const params = toSgrParams(rawParams);
+	if (params.length === 0) {
+		return true;
+	}
+	return params.some((param) => param === 0 || param === 27);
+}
+
+/**
+ * 扫描 SGR 序列维护反显状态（7 开 / 27 关 / 0 全重置），末尾若仍处于反显态则补发
+ * `\x1b[27m` 收尾。用于超宽行截断/换行后，防止区间尾的 `\x1b[27m` 被切掉导致
+ * 残留反显蔓延到行外。截断后的文本末尾若本来就没有悬空 7m，则原样返回。
+ */
+export function closeDanglingInverseAnsi(text: string): string {
+	if (!text.includes("\x1b[")) {
+		return text;
+	}
+
+	let inverted = false;
+	ANSI_SGR_SCAN_PATTERN.lastIndex = 0;
+	let match: RegExpExecArray | null;
+	while ((match = ANSI_SGR_SCAN_PATTERN.exec(text)) !== null) {
+		const params = toSgrParams(match[1] ?? "");
+		if (params.length === 0) {
+			inverted = false;
+			continue;
+		}
+		for (const param of params) {
+			if (param === 0 || param === 27) {
+				inverted = false;
+			} else if (param === 7) {
+				inverted = true;
+			}
+		}
+	}
+	return inverted ? `${text}${INVERSE_CLOSE_ANSI}` : text;
+}
+
 export function sanitizeAnsiForThemedOutput(text: string): string {
 	return filterSgrSequences(text, stripBackgroundSgrParams);
 }

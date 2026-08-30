@@ -161,6 +161,8 @@ export function renderEditDiffResult(
 				containerBgAnsi,
 				wordWrap,
 				indicatorMode,
+				emphasisStyle: live.diffEmphasisStyle,
+				indentGuide: live.diffIndentGuide,
 				showHashlineAnchors,
 			};
 			const bodyRows =

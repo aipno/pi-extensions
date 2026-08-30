@@ -14,10 +14,16 @@ export type ConfigLanguage = (typeof CONFIG_LANGUAGES)[number];
 
 export type DiffViewMode = "auto" | "split" | "unified";
 export type DiffIndicatorMode = "bars" | "classic" | "none";
+/** 行首缩进可视化：off 不画；dots 把首段缩进空格画成暗色 `·`（cap 16）。 */
+export type DiffIndentGuideMode = "off" | "dots";
+/** 行内改动片段强调：bg 用混合背景色；inverse 用 SGR 7 反显（不依赖终端配色）。 */
+export type DiffEmphasisStyle = "bg" | "inverse";
 
 export interface ToolDisplayConfig {
 	diffViewMode: DiffViewMode;
 	diffIndicatorMode: DiffIndicatorMode;
+	diffIndentGuide: DiffIndentGuideMode;
+	diffEmphasisStyle: DiffEmphasisStyle;
 	diffSplitMinWidth: number;
 	editDiffCollapsedLines: number;
 	/** Write-only collapsed body lines. 0 = `↳ created • click to show more`. */
@@ -29,6 +35,10 @@ export interface ToolDisplayConfig {
 export const DEFAULT_TOOL_DISPLAY_CONFIG: ToolDisplayConfig = {
 	diffViewMode: "auto",
 	diffIndicatorMode: "bars",
+	// 默认关：依赖真机反馈+截图对比才可能翻转为 on（§0.1）。
+	diffIndentGuide: "off",
+	// 默认 bg：所有终端零回归；inverse 仅手动切换（§0.1）。
+	diffEmphasisStyle: "bg",
 	diffSplitMinWidth: 120,
 	/** Collapsed edit/diff body: ~half a typical terminal after chrome. */
 	editDiffCollapsedLines: 24,
@@ -51,6 +61,8 @@ export type Config = {
 	excludeRenderers: string[];
 	diffViewMode: DiffViewMode;
 	diffIndicatorMode: DiffIndicatorMode;
+	diffIndentGuide: DiffIndentGuideMode;
+	diffEmphasisStyle: DiffEmphasisStyle;
 	diffSplitMinWidth: number;
 	editDiffCollapsedLines: number;
 	writeDiffCollapsedLines: number;
@@ -80,6 +92,8 @@ const CONFIG_PATH = join(AGENT_DIR, "pi-tui.json");
 
 export const DIFF_VIEW_MODES: DiffViewMode[] = ["auto", "split", "unified"];
 export const DIFF_INDICATOR_MODES: DiffIndicatorMode[] = ["bars", "classic", "none"];
+export const DIFF_INDENT_GUIDE_MODES: DiffIndentGuideMode[] = ["off", "dots"];
+export const DIFF_EMPHASIS_STYLES: DiffEmphasisStyle[] = ["bg", "inverse"];
 export const DIFF_SPLIT_MIN_WIDTH_VALUES = ["80", "100", "120", "140", "160", "180"];
 export const DIFF_COLLAPSED_LINES_VALUES = ["12", "24", "36", "48", "80", "120"];
 /** Write collapsed presets. 0 = stats only (`+N -0` + expand hint). */
@@ -110,6 +124,8 @@ export const DEFAULT_CONFIG: Config = {
 	excludeRenderers: [],
 	diffViewMode: DEFAULT_TOOL_DISPLAY_CONFIG.diffViewMode,
 	diffIndicatorMode: DEFAULT_TOOL_DISPLAY_CONFIG.diffIndicatorMode,
+	diffIndentGuide: DEFAULT_TOOL_DISPLAY_CONFIG.diffIndentGuide,
+	diffEmphasisStyle: DEFAULT_TOOL_DISPLAY_CONFIG.diffEmphasisStyle,
 	diffSplitMinWidth: DEFAULT_TOOL_DISPLAY_CONFIG.diffSplitMinWidth,
 	editDiffCollapsedLines: DEFAULT_TOOL_DISPLAY_CONFIG.editDiffCollapsedLines,
 	writeDiffCollapsedLines: DEFAULT_TOOL_DISPLAY_CONFIG.writeDiffCollapsedLines,
@@ -178,6 +194,16 @@ export function normalizeConfig(input: unknown): Config {
 			source.diffIndicatorMode,
 			DIFF_INDICATOR_MODES,
 			DEFAULT_CONFIG.diffIndicatorMode,
+		),
+		diffIndentGuide: pickEnum(
+			source.diffIndentGuide,
+			DIFF_INDENT_GUIDE_MODES,
+			DEFAULT_CONFIG.diffIndentGuide,
+		),
+		diffEmphasisStyle: pickEnum(
+			source.diffEmphasisStyle,
+			DIFF_EMPHASIS_STYLES,
+			DEFAULT_CONFIG.diffEmphasisStyle,
 		),
 		diffSplitMinWidth: pickPositiveInt(
 			source.diffSplitMinWidth,
@@ -255,6 +281,8 @@ export function getToolDisplayConfig(source: Config = config): ToolDisplayConfig
 	return {
 		diffViewMode: source.diffViewMode,
 		diffIndicatorMode: source.diffIndicatorMode,
+		diffIndentGuide: source.diffIndentGuide,
+		diffEmphasisStyle: source.diffEmphasisStyle,
 		diffSplitMinWidth: source.diffSplitMinWidth,
 		editDiffCollapsedLines: source.editDiffCollapsedLines,
 		writeDiffCollapsedLines: source.writeDiffCollapsedLines,
@@ -273,6 +301,8 @@ export function formatConfigStatus(source: Config = config): string {
 		`exclude=[${source.excludeRenderers.join(", ") || "none"}]`,
 		`diffView=${source.diffViewMode}`,
 		`diffIndicator=${source.diffIndicatorMode}`,
+		`indentGuide=${source.diffIndentGuide}`,
+		`emphasis=${source.diffEmphasisStyle}`,
 		`diffSplitMin=${source.diffSplitMinWidth}`,
 		`editCollapsed=${source.editDiffCollapsedLines}`,
 		`writeCollapsed=${source.writeDiffCollapsedLines}`,
