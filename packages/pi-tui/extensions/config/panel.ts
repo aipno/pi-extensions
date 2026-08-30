@@ -10,6 +10,13 @@ import type { CompactThinkingController } from "../feature/compact-thinking.ts";
 import { applyFooter } from "../feature/footer.ts";
 import { applyStartupHeader } from "../feature/shell/startup-header.ts";
 import type { ToolGroupingHooks } from "../renderer/tool/grouping.ts";
+import {
+	applyComposerStyle,
+	DEFAULT_STYLE_ID,
+	getComposerStyle,
+	listComposerStyleIds,
+	PREVIEW_WIDTH,
+} from "../feature/composer-styles.ts";
 import { t } from "../utils/i18n.ts";
 import { bindingKeys } from "../utils/key-hint.ts";
 import {
@@ -134,6 +141,37 @@ function streamingRevealDescription(mode: "off" | "on"): string {
 		"panel.streamingReveal.desc.off",
 		"Assistant text appears as it arrives (default native behavior).",
 	);
+}
+
+/** 会话内当前输入框形态（默认 pi = 宿主原样；关闭面板后保持）。 */
+let activeInputStyleId = DEFAULT_STYLE_ID;
+
+function inputStyleDisplayName(id: string): string {
+	return t(`panel.inputStyle.style.${id}`, id);
+}
+
+function inputStyleDescription(id: string): string {
+	if (id === "default" || id === DEFAULT_STYLE_ID) {
+		return t(
+			"panel.inputStyle.desc.default",
+			"Pi's default input box. Choose a style below to preview on this panel and apply immediately.",
+		);
+	}
+	return t(
+		"panel.inputStyle.desc",
+		"Applies immediately to the main input box. Preview above while this item is selected.",
+		{ style: inputStyleDisplayName(id) },
+	);
+}
+
+/** 与主输入框同一 style 对象自绘的预览块（选中 Input style 项时显示在设置列表下方）。 */
+function renderInputStylePreview(styleId: string, theme: any): string[] {
+	const style = getComposerStyle(styleId);
+	if (!style) return [];
+	const safe = Math.max(2, PREVIEW_WIDTH);
+	const rows = ["─".repeat(safe), "  type here… ", "─".repeat(safe)];
+	const painted = style.apply(rows, safe, (text) => theme.fg("dim", text));
+	return painted.map((line) => `  ${line}`);
 }
 
 /** 额外功能开关项：on/off 二值，描述随状态切换；切换后需重启生效。 */
@@ -524,6 +562,18 @@ export async function showCcstylePanel(
 			currentValue: config.streamingReveal,
 			values: ["off", "on"],
 		};
+		const inputStyleSetting = {
+			id: "composerStyle",
+			label: t("panel.inputStyle.label", "Input style"),
+			description: inputStyleDescription(activeInputStyleId),
+			currentValue:
+				activeInputStyleId === DEFAULT_STYLE_ID ? "default" : activeInputStyleId,
+			// "default" 即代表 pi（透传父类）；内置/扩展样式跟在后面。
+			values: [
+				"default",
+				...listComposerStyleIds().filter((id) => id !== DEFAULT_STYLE_ID),
+			],
+		};
 		// 语言设置：切换立即生效（与重启生效的 toggle 类不同），渲染时读 config。
 		const languageSetting = {
 			id: "language",
@@ -723,6 +773,29 @@ export async function showCcstylePanel(
 					);
 					// 补丁始终安装、运行时读 config 决定透传/管线化 → 切换即时生效。
 					break;
+				case "composerStyle": {
+					// 立即替换/还原主输入框组件（不刷新 transcript：composer 不在其内）。
+					const applied = applyComposerStyle(value, ctx);
+					if (!applied) {
+						ctx.ui.notify(
+							t("panel.inputStyle.notFound", "Unknown input style: {value}", { value }),
+							"warning",
+						);
+						return;
+					}
+					activeInputStyleId = value;
+					inputStyleSetting.currentValue =
+						value === DEFAULT_STYLE_ID ? "default" : value;
+					inputStyleSetting.description = inputStyleDescription(value);
+					ctx.ui.notify(
+						t("panel.updated", "Updated {id}: {value}", {
+							id: inputStyleSetting.label,
+							value: inputStyleDisplayName(value),
+						}),
+						"info",
+					);
+					return;
+				}
 				case "language":
 					// 即时生效：languageSetting 渲染时已读取 config；其它面板文案下次打开面板更新。
 					updateConfig({ language: value === "zh" ? "zh" : "en" });
@@ -777,6 +850,7 @@ export async function showCcstylePanel(
 					footerSetting,
 					scrollStepSetting,
 					streamingRevealSetting,
+					inputStyleSetting,
 				],
 			},
 			{
@@ -856,6 +930,19 @@ export async function showCcstylePanel(
 				const listBody = listHintIndex >= 0 ? body.slice(0, listHintIndex) : body;
 				while (listBody.length > 0 && listBody[listBody.length - 1] === "") listBody.pop();
 
+				// 输入框形态预览：UI 页签选中 Input style 项且为自定义形态时，
+				// 用与主输入框同一 style 对象自绘（两表面同源）。
+				let previewLines: string[] = [];
+				if (sections[activeSection]?.id === "ui" && activeInputStyleId !== DEFAULT_STYLE_ID) {
+					const internal = activeList() as unknown as {
+						items?: { id?: string }[];
+						selectedIndex: number;
+					};
+					if (internal.items?.[internal.selectedIndex]?.id === "composerStyle") {
+						previewLines = renderInputStylePreview(activeInputStyleId, theme);
+					}
+				}
+
 				// Frame: top rule · tabs · mid rule · settings · mid rule · footer · bottom rule
 				// 键位提示从 keybindings manager 取（改键后自动跟随）；未绑定项自动隐藏。
 				const confirmKeys = bindingKeys("tui.select.confirm", "enter");
@@ -873,6 +960,7 @@ export async function showCcstylePanel(
 					renderSectionTabBar(theme, sections, activeSection, safeWidth),
 					rule,
 					...listBody,
+					...previewLines,
 					rule,
 						truncateToWidth(theme.fg("dim", `  ${parts.join(" · ")}`), safeWidth),
 					rule,
